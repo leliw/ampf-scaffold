@@ -37,7 +37,7 @@ cd frontend
 ng add @angular/material
 ```
 
-## Dockerize the project
+## Run & Dockerize the application
 
 ### Application FastAPI (backend)
 
@@ -294,3 +294,120 @@ async def catch_all(full_path: str):
 async def exception_not_found_callback(request: Request, exc: KeyNotExistsException):
     return JSONResponse({"detail": "Not found"}, status_code=404)
 ```
+
+### Application Angular (frontend)
+
+```bash
+cd frontend
+mkdir src/app/core
+mkdir src/app/features
+```
+
+#### frontend/src/app/core/config.service.ts
+
+```typescript
+import { HttpClient } from '@angular/common/http';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { catchError, Observable, of, tap } from 'rxjs';
+
+export interface Config {
+    version: string;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class ConfigService {
+    private http = inject(HttpClient);
+    private readonly url = '/api/config';
+
+    private readonly _config = signal<Config | null>(null);
+
+    public readonly config = this._config.asReadonly();
+
+    public loadConfig(): Observable<Config> {
+        return this.http.get<Config>(this.url).pipe(
+            tap(config => this._config.set(config)),
+            catchError(err => {
+                console.error('Failed to load config', err);
+                const fallbackConfig = { version: 'unknown' };
+                this._config.set(fallbackConfig);
+                return of(fallbackConfig);
+            })
+        );
+    }
+
+    public getConfigValue<K extends keyof Config>(key: K) {
+        return computed(() => {
+            const currentConfig = this._config();
+            return currentConfig ? currentConfig[key] : null;
+        });
+    }
+}
+```
+
+#### frontend/src/app/app.config.ts
+
+```typescript
+import { ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideRouter } from '@angular/router';
+
+import { provideHttpClient } from '@angular/common/http';
+import { routes } from './app.routes';
+import { ConfigService } from './core/config.service';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(),
+    provideAppInitializer(() => {
+      const configService = inject(ConfigService);
+      return configService.loadConfig();
+    }),
+    provideBrowserGlobalErrorListeners(),
+    provideRouter(routes),
+  ]
+};
+```
+
+#### frontend/src/app/app.ts
+
+```typescript
+import { Component, inject, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { ConfigService } from './core/config.service';
+
+@Component({
+  selector: 'app-root',
+  imports: [RouterOutlet],
+  templateUrl: './app.html',
+  styleUrl: './app.scss'
+})
+export class App {
+  protected readonly title = signal('frontend');
+  public configService = inject(ConfigService);
+}
+
+```
+
+#### frontend/src/app/app.html
+
+```html
+<router-outlet />
+<span class="footer-version">v. {{ configService.config()?.version ?? 'unknown' }}</span>
+```
+
+#### frontend/src/app/app.scss
+
+```scss
+...
+.footer-version {
+    position: absolute;
+    right: 1em;
+    bottom: 0.6em;
+    font-size: small;
+    color: rgba(0, 0, 0, 0.54);
+    z-index: 200;
+    pointer-events: none;
+}
+```
+
