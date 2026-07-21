@@ -1,0 +1,4 @@
+{
+    "workbench.colorTheme": "Tokyo Night Light",
+    "window.title": "${dirty}${activeRepositoryName}${separator}${rootName}${separator}${profileName}",
+}
