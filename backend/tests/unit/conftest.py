@@ -1,4 +1,5 @@
 import pytest
+from ampf.base import BaseAsyncFactory
 from ampf.testing import ApiTestClient
 from app_state import AppState
 from core.app_config import AppConfig
@@ -8,8 +9,9 @@ from main import app as main_app
 
 
 @pytest.fixture
-def config() -> AppConfig:
+def config(tmp_path) -> AppConfig:
     return AppConfig(
+        data_dir=str(tmp_path),
         production=False,
     )
 
@@ -31,3 +33,8 @@ def client(app: FastAPI) -> ApiTestClient:  # type: ignore
 @pytest.fixture
 def app_state(client: ApiTestClient) -> AppState:
     return client.app.state.app_state  # type: ignore
+
+
+@pytest.fixture
+def factory(client: ApiTestClient) -> BaseAsyncFactory:
+    return client.app.state.app_state.factory  # type: ignore

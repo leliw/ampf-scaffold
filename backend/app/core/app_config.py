@@ -7,3 +7,5 @@ class AppConfig(BaseSettings):
 
     version: str = __version__
     production: bool = True
+
+    data_dir: str = "./data/"
