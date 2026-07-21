@@ -17,6 +17,7 @@ git pull origin main
 uv init --no-readme backend
 cd backend
 uv add fastapi uvicorn pydantic pydantic-settings
+uv add gunicorn
 uv add --dev pytest pytest-asyncio httpx2 coverage pytest-cov python-dotenv
 ```
 
@@ -453,4 +454,97 @@ EOF
 # Start frontend
 cd frontend
 ng serve -o --proxy-config=proxy-dev.conf.json --host 0.0.0.0 --port=$PORT
+```
+
+### Dockerize the project
+
+#### Dockerfile
+
+```dockerfile
+# ------ Stage 1: Angular project ------
+    FROM node:lts-trixie-slim AS angular-build
+    WORKDIR /app
+   
+    COPY frontend/package.json frontend/package-lock.json ./
+    RUN npm install --legacy-peer-deps
+   
+    COPY frontend/ .
+    RUN npm run build
+   
+# ------ Stage 2: Python/FastAPI project ------
+    FROM python:3.13.11-slim-trixie
+    COPY --from=ghcr.io/astral-sh/uv:0.9.5-python3.13-trixie-slim /usr/local/bin/uv /bin/
+
+    # Creates a non-root user with an explicit UID and adds permission to access the /app folder
+    RUN mkdir /app
+    RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+
+    # Enable bytecode compilation
+    ENV UV_COMPILE_BYTECODE=1
+    # Keeps Python from generating .pyc files in the container
+    ENV PYTHONDONTWRITEBYTECODE=1
+    # Turns off buffering for easier container logging
+    ENV PYTHONUNBUFFERED=1
+
+    # Copy from the cache instead of linking since it's a mounted volume
+    ENV UV_LINK_MODE=copy
+
+    WORKDIR /app
+
+    COPY ./backend/pyproject.toml ./backend/uv.lock /app/
+
+    # Install application dependencies.
+    RUN --mount=type=cache,target=/root/.cache/uv \
+        uv sync --no-install-project --no-dev
+
+    # Copy the application into the container.
+    COPY ./backend/app/ /app/
+    # Copy Angular build to FastAPI static folder
+    COPY --from=angular-build /app/dist/frontend /app/static
+
+    # And compile the application.
+    RUN --mount=type=cache,target=/root/.cache/uv \
+        uv sync --frozen --no-dev
+
+    # Place executables in the environment at the front of the path
+    ENV PATH="/app/.venv/bin:$PATH"
+
+    # Switch to non-root user.
+    USER appuser
+
+    # Run the application.
+    EXPOSE 8080
+    CMD [\
+        "gunicorn", "main:app", \
+        "--bind", "0.0.0.0:8080", \
+        "--worker-class", "uvicorn.workers.UvicornWorker", \
+        "--timeout", "300" \
+        ]
+```
+
+#### docker_build.sh
+
+```bash
+#!/bin/bash
+
+export IMAGE_NAME="ampf-scaffolder"
+export IMAGE_VERSION=$(uv run --no-sync --directory=./backend app/version.py)
+export DOCKER_REGISTRY="europe-west3-docker.pkg.dev/development-428212/docker-eu"
+
+
+docker build \
+--tag $DOCKER_REGISTRY/$IMAGE_NAME:latest .
+# --progress=plain \
+
+echo "Pushing ..."
+
+docker push $DOCKER_REGISTRY/$IMAGE_NAME:latest
+docker tag $DOCKER_REGISTRY/$IMAGE_NAME:latest $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_VERSION
+docker push $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_VERSION
+```
+
+To run dockerized application:
+
+```bash
+docker run -p 8080:8080 ampf-scaffolder
 ```
