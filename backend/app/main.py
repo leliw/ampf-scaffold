@@ -7,7 +7,7 @@ from dependencies import lifespan
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from log_config import setup_logging
-from routers import config
+from routers import auth, config, users
 from version import __version__
 
 _log = logging.getLogger(__name__)
@@ -23,9 +23,9 @@ app = FastAPI(
     openapi_url="/openapi.json" if not app_config.production else None,
 )
 
-
+app.include_router(auth.router, prefix="/api")
 app.include_router(config.router, prefix="/api/config")
-
+app.include_router(users.router, prefix="/api/users")
 
 @app.get("/api/ping")
 async def ping() -> None:

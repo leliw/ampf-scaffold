@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from ampf.base import BaseAsyncFactory
 
+from core.users.user_service import UserService
 from storage_def import STORAGE_DEF
 from core.app_config import AppConfig
 from fastapi import FastAPI
@@ -15,6 +16,7 @@ _log = logging.getLogger(__name__)
 class AppState:
     config: AppConfig
     factory: BaseAsyncFactory
+    user_service: UserService
     _initialized: bool = False
     
 
@@ -24,6 +26,7 @@ class AppState:
         return cls(
             config=config,
             factory=factory,
+            user_service=UserService(storage=factory.get_collection("users")),
         )
 
     @staticmethod
@@ -42,5 +45,6 @@ class AppState:
     async def manage_lifecycle(self, app: FastAPI):
         if not self._initialized:
             self._initialized = True
+            await self.user_service.initialize_storage(self.config.default_user)
 
         yield self

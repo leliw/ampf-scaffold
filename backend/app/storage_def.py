@@ -1,10 +1,10 @@
 from ampf.base import CollectionDef
-from pydantic import BaseModel
 from core.feature_flags import FeatureFlags
+from core.users.user_model import UserInDB
 
 # fmt: off
 STORAGE_DEF = [
-    CollectionDef("collection", BaseModel, "id", subcollections=[
+    CollectionDef("users", UserInDB, "username", subcollections=[
     ])
 ]
 # fmt: on
