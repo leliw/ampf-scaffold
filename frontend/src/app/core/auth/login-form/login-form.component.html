@@ -24,7 +24,9 @@
                         </div>
                     </mat-card-content>
                     <mat-card-actions align="end">
-                        <button mat-flat-button color="primary" type="submit" [disabled]="!loginForm.form.valid">Sign
+                        <button matButton="text" type="button" routerLink="/reset-password-request">Forgot
+                            password?</button>
+                        <button matButton="filled" type="submit" [disabled]="!loginForm.form.valid">Sign
                             in</button>
                     </mat-card-actions>
                 </mat-card>
