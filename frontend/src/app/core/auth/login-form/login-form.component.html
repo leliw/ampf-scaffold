@@ -1,0 +1,35 @@
+<div class="full-screen-container">
+    <div class="main-content">
+
+        <div class="centered-form">
+            <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+                <mat-card>
+                    <mat-card-header>
+                        <mat-card-title>Welcome back</mat-card-title>
+                        <mat-card-subtitle>Sign in to continue</mat-card-subtitle>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <mat-form-field class="full-width">
+                            <mat-label>Username</mat-label>
+                            <input matInput type="text" name="username" [(ngModel)]="credentials.username" required
+                                autocomplete="username" autofocus>
+                        </mat-form-field>
+                        <mat-form-field class="full-width">
+                            <mat-label>Password</mat-label>
+                            <input matInput type="password" name="password" [(ngModel)]="credentials.password" required
+                                autocomplete="current-password">
+                        </mat-form-field>
+                        <div class="full-width">
+                            <mat-checkbox name="store_token" [(ngModel)]="store_token">Remember me</mat-checkbox>
+                        </div>
+                    </mat-card-content>
+                    <mat-card-actions align="end">
+                        <button mat-flat-button color="primary" type="submit" [disabled]="!loginForm.form.valid">Sign
+                            in</button>
+                    </mat-card-actions>
+                </mat-card>
+            </form>
+        </div>
+        <span class="footer-version">v. {{ configService.config()?.version ?? 'unknown' }}</span>
+    </div>
+</div>

@@ -6,5 +6,16 @@
             <span matListItemTitle>Home</span>
         </a>
         }
+        <a mat-list-item [matMenuTriggerFor]="menu">
+            <mat-icon matListItemIcon>account_circle</mat-icon>
+            <span matListItemTitle>You</span>
+        </a>
     </mat-nav-list>
 </mat-toolbar>
+
+<mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Sign out</span>
+    </button>
+</mat-menu>
