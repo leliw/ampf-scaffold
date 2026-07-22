@@ -18,7 +18,7 @@ trap cleanup EXIT INT TERM
 
 # Start backend
 cd backend
-PYTHONPATH="app" uv run uvicorn app.main:app --reload --port=$API_PORT &
+PYTHONPATH="app" uv run --env-file .env uvicorn app.main:app --reload --port=$API_PORT &
 UVICORN_PID=$!
 cd ..
 
