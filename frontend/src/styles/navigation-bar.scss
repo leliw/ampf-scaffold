@@ -1,0 +1,45 @@
+.navigation-bar {
+    padding: 0px;
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(var(--app-bar-height) + env(safe-area-inset-bottom));
+    z-index: 1000;
+    border-top: 1px solid var(--mat-divider-color);
+    align-items: center;
+    justify-content: center;
+    display: flex;
+
+    mat-nav-list {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 1fr;
+        gap: 0.2em;
+        justify-items: center;
+        justify-content: center;
+        padding: 0;
+        margin: 0;
+
+        @media (max-width: 800px) {
+            width: 100%;
+        }
+
+        .mat-mdc-list-item {
+            text-align: left;
+            display: flex;
+            flex-direction: row;
+
+            @media (max-width: 800px) {
+                height: auto;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding-top: 0.3em;
+                padding-right: 0.5em;
+                padding-left: 0.5em;
+
+                span.mat-mdc-list-item-title {
+                    font-size: x-small;
+                }
+            }
+        }
+    }
+}

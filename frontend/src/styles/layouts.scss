@@ -1,0 +1,128 @@
+.full-screen-container {
+    height: calc(100dvh - env(safe-area-inset-bottom));
+    margin: 0px;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1 1 auto;
+    position: relative;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+
+}
+
+.main-content.no-overflow {
+    display: flex;
+    overflow: hidden;
+    -webkit-overflow-scrolling: auto;
+
+    .overflow {
+        flex: 1 1 auto;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: calc(16px + 56px);
+    }
+
+    .mat-mdc-fab {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+    }
+}
+
+.main-content.centered {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.layout-container-1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.layout-container-2 {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 0.5em;
+    padding: 0.5em;
+    box-sizing: border-box;
+    height: 100%;
+
+    .part {
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+    }
+}
+
+.layout-container-2.full-width {
+    padding: 0.5em 1em;
+    max-width: 100%;
+}
+
+
+
+/* Tablets / small desktops */
+@media (min-width: 600px) {
+    :root {
+        --app-bar-height: 64px;
+    }
+
+    .layout-container-2 {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr;
+    }
+
+    .centered .layout-container-1,
+    .centered .layout-container-2 {
+        max-height: 800px;
+        max-width: 1200px;
+        margin: auto;
+    }
+}
+
+/* Middle desktops / landscape tablets */
+@media (min-width: 960px) {
+    .layout-container-2 {
+        gap: 2em;
+    }
+
+    .layout-container-2.full-width {
+        padding: 0.5em 2em;
+    }
+}
+
+/* large desktops */
+@media (min-width: 1280px) {
+    .layout-container-2 {
+        gap: 7em;
+    }
+
+    .layout-container-2.full-width {
+        padding: 0.5em 7em;
+    }
+}
+
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.35);
+    color: white;
+    text-align: center;
+}

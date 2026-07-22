@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ConfigService } from './core/config.service';
 
 @Component({
   selector: 'app-root',
@@ -10,5 +9,4 @@ import { ConfigService } from './core/config.service';
 })
 export class App {
   protected readonly title = signal('frontend');
-  public configService = inject(ConfigService);
 }

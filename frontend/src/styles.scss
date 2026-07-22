@@ -5,6 +5,12 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+@use './styles/core' as *;
+@use './styles/navigation-bar' as *;
+@use './styles/layouts' as *;
+@use './styles/shared' as *;
+@use './styles/forms' as *;
+
 html {
   height: 100%;
   @include mat.theme(
@@ -40,12 +46,3 @@ body {
 
 
 
-.footer-version {
-    position: absolute;
-    right: 1em;
-    bottom: 0.6em;
-    font-size: small;
-    color: rgba(0, 0, 0, 0.54);
-    z-index: 200;
-    pointer-events: none;
-}
