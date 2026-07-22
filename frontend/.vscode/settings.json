@@ -1,0 +1,14 @@
+{
+    "workbench.preferredDarkColorTheme": "Monokai",
+    "workbench.preferredLightColorTheme": "Quiet Light",
+    "window.title": "${dirty}${activeRepositoryName}${separator}${rootName}${separator}${profileName}",
+    "window.autoDetectColorScheme": true,
+    "files.exclude": {
+        ".angular/": true,
+        ".github/": true,
+        ".vscode/": true,
+        "node_modules/": true,
+        ".editorconfig": true,
+        ".prettierrc": true
+    }
+}
