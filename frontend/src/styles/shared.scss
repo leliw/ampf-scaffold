@@ -1,0 +1,14 @@
+.vertically-centered {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.flex-spacer {
+    flex: 1 1 auto;
+}

@@ -1,0 +1,124 @@
+div.centered-form {
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--mat-sys-surface-dim);
+    box-sizing: border-box;
+
+    form {
+        width: 100%;
+        max-width: 600px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+
+        mat-card-header {
+            margin-bottom: 16px;
+
+            mat-card-title {
+                font-size: 28px;
+                font-weight: 500;
+                text-align: center;
+            }
+
+            mat-card-subtitle {
+                text-align: center;
+                color: var(--mat-sys-on-surface-variant);
+            }
+
+        }
+
+    }
+
+    @media (min-width: 600px) {
+        form {
+            max-width: 480px;
+        }
+    }
+
+    @media (min-width: 840px) {
+        form {
+            max-width: 520px; // tablet / small desktop
+        }
+    }
+
+    @media (min-width: 1200px) {
+        form {
+            max-width: 560px; // big screen
+        }
+    }
+}
+
+mat-form-field {
+
+    .mat-mdc-form-field-icon-prefix,
+    .mat-mdc-form-field-icon-suffix {
+
+        // Stylizacja przycisku
+        button[mat-icon-button] {
+            --mdc-icon-button-icon-size: 20px; // Rozmiar ikony
+            width: 36px !important; // Szerokość przycisku
+            height: 36px !important; // Wysokość przycisku
+            padding: 6px !important; // Wewnętrzny margines
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            // Kolor domyślny (lekko przygaszony)
+            color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.54));
+
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.04);
+                color: var(--mat-sys-primary, #3f51b5); // Kolor przy najechaniu
+            }
+
+            // Specyficzne stylowanie dla ikon wewnątrz
+            mat-icon {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+            }
+        }
+    }
+}
+
+form {
+    mat-card {
+        mat-card-header {
+            margin-bottom: 16px;
+
+            mat-card-title {
+                font-size: 28px;
+                font-weight: 500;
+                text-align: center;
+            }
+
+            mat-card-subtitle {
+                text-align: center;
+                color: var(--mat-sys-on-surface-variant);
+            }
+
+        }
+
+        mat-card-content {
+            position: relative;
+        }
+
+        .mat-mdc-card-actions {
+            padding: 0 16px 8px 16px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+
+            button {
+                margin-left: 0px;
+                margin-right: 0px;
+            }
+
+            mat-spinner {
+                margin-right: 8px;
+            }
+        }
+    }
+}

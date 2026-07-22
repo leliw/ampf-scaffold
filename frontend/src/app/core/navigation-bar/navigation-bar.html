@@ -1,0 +1,10 @@
+<mat-toolbar color="primary" class="navigation-bar">
+    <mat-nav-list>
+        @if (showHome()) {
+        <a mat-list-item routerLink="/">
+            <mat-icon matListItemIcon>home</mat-icon>
+            <span matListItemTitle>Home</span>
+        </a>
+        }
+    </mat-nav-list>
+</mat-toolbar>
