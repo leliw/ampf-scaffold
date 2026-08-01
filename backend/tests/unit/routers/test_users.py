@@ -1,5 +1,5 @@
-from core.users.user_model import User, UserHeader
 from ampf.testing import ApiTestClient
+from core.users.user_model import User, UserHeader
 
 
 def test_get_all_unauthenticated(client: ApiTestClient):
