@@ -9,7 +9,7 @@ class AppConfig(BaseSettings):
     version: str = __version__
     production: bool = True
 
-    data_dir: str = "./data/"
+    data_dir: str | None = None
 
     auth: AuthConfig = AuthConfig(jwt_secret_key="")
     default_user: DefaultUser = DefaultUser(username="admin", password="")
