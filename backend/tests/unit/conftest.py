@@ -1,33 +1,33 @@
+import importlib
+from collections.abc import Generator
+
+import main
 import pytest
-from ampf.base import BaseAsyncFactory
+from ampf.base import BaseAsyncFactory, BaseFactory
 from ampf.testing import ApiTestClient
 from app_state import AppState
 from core.app_config import AppConfig
 from dependencies import lifespan
-from fastapi import FastAPI
-from main import app as main_app
+from log_config import setup_logging
 
 
 @pytest.fixture
-def config(tmp_path) -> AppConfig:
+def config() -> AppConfig:
     return AppConfig(
-        data_dir=str(tmp_path),
+        data_dir=None,
         production=False,
     )
 
 
 @pytest.fixture
-def app(config: AppConfig) -> FastAPI:
-    app = main_app
+def client(config: AppConfig) -> Generator[ApiTestClient]:
+    setup_logging()
+    importlib.reload(main)
+    app = main.app
     # Reconfigure the lifespan to use the test server config
     app.router.lifespan_context = lifespan(config)
-    return app
-
-
-@pytest.fixture
-def client(app: FastAPI) -> ApiTestClient:  # type: ignore
     with ApiTestClient(app) as client:
-        yield client  # type: ignore
+        yield client
 
 
 @pytest.fixture
@@ -36,5 +36,10 @@ def app_state(client: ApiTestClient) -> AppState:
 
 
 @pytest.fixture
-def factory(client: ApiTestClient) -> BaseAsyncFactory:
-    return client.app.state.app_state.factory  # type: ignore
+def async_factory(app_state: AppState) -> BaseAsyncFactory:
+    return app_state.factory
+
+
+@pytest.fixture
+def factory(async_factory: BaseAsyncFactory) -> BaseFactory:
+    return async_factory.get_sync_factory()
