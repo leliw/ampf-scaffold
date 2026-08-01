@@ -1,7 +1,9 @@
 import re
 
+from ampf.testing import ApiTestClient
 
-def test_get_client_config(client):
+
+def test_get_client_config(client: ApiTestClient):
     # When: A GET request is made to /api/config
     response = client.get("/api/config")
     r = response.json()
