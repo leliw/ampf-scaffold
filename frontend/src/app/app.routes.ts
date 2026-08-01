@@ -19,7 +19,14 @@ export const routes: Routes = [
         path: 'reset-password', title: "Reset password",
         loadComponent: () => import('./core/auth/reset-password-form/reset-password-form.component').then(mod => mod.ResetPasswordFormComponent)
     },
-
+    {
+        path: 'users', title: "Users", canActivate: [authGuard], data: { roles: ['admin'] },
+        loadComponent: () => import('./core/users/user-table/user-table').then(m => m.UserTable)
+    },
+    {
+        path: 'users/:username/change-password', title: "Change password", canActivate: [authGuard], data: { roles: ['admin'] },
+        loadComponent: () => import('./core/auth/change-password-form/change-password-form.component').then(m => m.ChangePasswordFormComponent)
+    },
     {
         path: 'home', title: "AMPF Scaffold", canActivate: [authGuard],
         loadComponent: () => import('./core/home/home').then(m => m.Home)

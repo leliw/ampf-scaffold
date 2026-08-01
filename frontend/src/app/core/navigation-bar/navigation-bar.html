@@ -14,6 +14,12 @@
 </mat-toolbar>
 
 <mat-menu #menu="matMenu">
+    @if (authStateService.hasRole("admin")) {
+    <button mat-menu-item routerLink="/users" routerLinkActive="active-link">
+        <mat-icon>manage_accounts</mat-icon>
+        <span>Users</span>
+    </button>
+    }
     <button mat-menu-item routerLink="/change-password">
         <mat-icon>key</mat-icon>
         <span>Change password</span>

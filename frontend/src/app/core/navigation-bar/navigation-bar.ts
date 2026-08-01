@@ -5,6 +5,7 @@ import { MatListModule } from "@angular/material/list";
 import { RouterModule } from '@angular/router';
 import { MatMenuModule } from "@angular/material/menu";
 import { AuthService } from '../auth/auth.service';
+import { AuthStateService } from '../auth/auth-state.service';
 
 @Component({
     selector: 'app-navigation-bar',
@@ -22,6 +23,7 @@ export class NavigationBar {
     showHome = input(true);
 
     private authService = inject(AuthService);
+    public authStateService = inject(AuthStateService);
 
     logout() {
         this.authService.logout().subscribe()
