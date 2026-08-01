@@ -3,7 +3,6 @@ from collections.abc import Generator
 
 import main
 import pytest
-import pytest_asyncio
 from ampf.auth import AuthConfig, DefaultUser, TokenExp, Tokens
 from ampf.base import BaseAsyncFactory, BaseFactory
 from ampf.testing import ApiTestClient
@@ -49,10 +48,10 @@ def factory(async_factory: BaseAsyncFactory) -> BaseFactory:
     return async_factory.get_sync_factory()
 
 
-@pytest_asyncio.fixture
-async def tokens(factory: BaseAsyncFactory, client: ApiTestClient) -> Tokens:
+@pytest.fixture
+def tokens(factory: BaseFactory, client: ApiTestClient) -> Tokens:
     # Clear token_black_list
-    await factory.create_compact_storage("token_black_list", TokenExp, "token").drop()
+    factory.create_compact_storage("token_black_list", TokenExp, "token").drop()
     # Login
     return client.post_typed("/api/login", 200, Tokens, data={"username": "test", "password": "test"})
 
