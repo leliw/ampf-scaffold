@@ -24,6 +24,10 @@ export const routes: Routes = [
         loadComponent: () => import('./core/users/user-table/user-table').then(m => m.UserTable)
     },
     {
+        path: 'users/:username', title: "Edit user", canActivate: [authGuard], data: { roles: ['admin'] },
+        loadComponent: () => import('./core/users/user-edit/user-edit').then(m => m.UserEdit)
+    },    
+    {
         path: 'users/:username/change-password', title: "Change password", canActivate: [authGuard], data: { roles: ['admin'] },
         loadComponent: () => import('./core/auth/change-password-form/change-password-form.component').then(m => m.ChangePasswordFormComponent)
     },

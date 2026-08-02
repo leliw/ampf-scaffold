@@ -4,10 +4,10 @@ import { Observable } from 'rxjs';
 
 export interface User {
     username: string;
-    email?: string | null;
-    name?: string | null;
-    disabled?: boolean;
-    roles?: string[];
+    email: string;
+    name: string;
+    disabled: boolean;
+    roles: string[];
     picture?: string | null;
     password?: string | null; // Only for creation/update, not typically returned
 }
@@ -28,6 +28,17 @@ export class UserService {
     public readonly endpoint = '/api/users';
 
     constructor(private httpClient: HttpClient) { }
+
+    new(): User {
+        return {
+            username: '',
+            email: '',
+            name: '',
+            disabled: false,
+            roles: [],
+            password: '',
+        }
+    }
 
     getAll(): Observable<UserHeader[]> {
         return this.httpClient.get<UserHeader[]>(this.endpoint);

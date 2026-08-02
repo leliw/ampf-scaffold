@@ -1,0 +1,69 @@
+<div class="centered-form">
+    <form (submit)="submit($event)">
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>{{ isCreateMode() ? 'New User' : 'Edit User: ' + username() }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="container">
+                    <mat-form-field appearance="fill" class="full-width">
+                        <mat-label>Username</mat-label>
+                        <input matInput [formField]="form.username" (blur)="onUsernameBlur()" />
+                        @if (form.username().invalid() && form.username().touched()) {
+                        @for (error of form.username().errors(); track $index) {
+                        <mat-error>{{ error.message }}</mat-error>
+                        }
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill" class="full-width">
+                        <mat-label>Email</mat-label>
+                        <input matInput [formField]="form.email" type="email" />
+                        @if (form.email().invalid() && form.email().touched()) {
+                        @for (error of form.email().errors(); track $index) {
+                        <mat-error>{{ error.message }}</mat-error>
+                        }
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill" class="full-width">
+                        <mat-label>Name</mat-label>
+                        <input matInput [formField]="form.name" />
+                        @if (form.name().invalid() && form.name().touched()) {
+                        @for (error of form.name().errors(); track $index) {
+                        <mat-error>{{ error.message }}</mat-error>
+                        }
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill" class="full-width">
+                        <mat-label>Roles</mat-label>
+                        <mat-select [formField]="form.roles" multiple>
+                            @for (role of roles.value(); track role.name) {
+                            <mat-option [value]="role.name" [matTooltip]="role.description">{{ role.name }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-checkbox [formField]="form.disabled">Disabled</mat-checkbox>
+                    @if (isCreateMode()) {
+                    <mat-form-field appearance="fill" class="full-width">
+                        <mat-label>Password</mat-label>
+                        <input matInput [formField]="form.password" type="password">
+                    </mat-form-field>
+                    }
+                </div>
+            </mat-card-content>
+            <mat-card-actions>
+                <button type="button" matButton (click)="cancel()" [disabled]="isBusy()">Cancel</button>
+                <button type="submit" matButton="filled" [disabled]="!canSubmit()">
+                    @if (isBusy()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                    {{ isCreateMode() ? 'Create' : 'Save' }}
+                    }
+                </button>
+            </mat-card-actions>
+        </mat-card>
+    </form>
+</div>
