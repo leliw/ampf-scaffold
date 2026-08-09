@@ -26,7 +26,7 @@ export const routes: Routes = [
     {
         path: 'users/:username', title: "Edit user", canActivate: [authGuard], data: { roles: ['admin'] },
         loadComponent: () => import('./core/users/user-edit/user-edit').then(m => m.UserEdit)
-    },    
+    },
     {
         path: 'users/:username/change-password', title: "Change password", canActivate: [authGuard], data: { roles: ['admin'] },
         loadComponent: () => import('./core/auth/change-password-form/change-password-form.component').then(m => m.ChangePasswordFormComponent)
@@ -34,5 +34,13 @@ export const routes: Routes = [
     {
         path: 'home', title: "AMPF Scaffold", canActivate: [authGuard],
         loadComponent: () => import('./core/home/home').then(m => m.Home)
+    },
+    {
+        path: 'items', title: "Items", canActivate: [authGuard], data: { roles: ['user'] },
+        loadComponent: () => import('./features/items/item-table/item-table').then(m => m.ItemTable)
+    },
+    {
+        path: 'items/:itemId', title: "Edit item", canActivate: [authGuard], data: { roles: ['user'] },
+        loadComponent: () => import('./features/items/item-edit/item-edit').then(m => m.ItemEdit)
     },
 ];
