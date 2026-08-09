@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from typing import Annotated
 
 from ampf.auth import AuthService, InsufficientPermissionsError, TokenPayload
-from ampf.base import BaseEmailSender, EmailTemplate, SmtpEmailSender
+from ampf.base import BaseAsyncFactory, BaseEmailSender, EmailTemplate, SmtpEmailSender
 from ampf.dependency import DependencyRegistry, get_dependency
 from app_state import AppState
 from core.app_config import AppConfig
@@ -11,6 +11,8 @@ from core.roles import Role
 from core.users.user_service import UserService
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordBearer
+from features.items.item_model import Item
+from features.items.item_service import ItemService
 
 _log = logging.getLogger(__name__)
 
@@ -32,6 +34,7 @@ def lifespan(config: AppConfig):
 
 AppStateDep = Annotated[AppState, Depends(get_dependency(AppState))]
 AppConfigDep = Annotated[AppConfig, Depends(get_dependency(AppConfig))]
+FactoryDep = Annotated[BaseAsyncFactory, Depends(get_dependency(BaseAsyncFactory))]
 UserServiceDep = Annotated[UserService, Depends(get_dependency(UserService))]
 
 
@@ -91,3 +94,9 @@ class Authorize:
             return True
         else:
             raise InsufficientPermissionsError()
+
+
+def get_item_service(factory: FactoryDep) -> ItemService:
+    return ItemService(factory.get_collection(Item))
+
+ItemServiceDep = Annotated[ItemService, Depends(get_item_service)]
