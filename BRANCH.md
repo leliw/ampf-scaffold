@@ -34,3 +34,9 @@ npm install @toast-ui/editor --force
     +    "node_modules/@toast-ui/editor/dist/toastui-editor.css"
     ]
     ```
+
+## Frontend - shared
+
+* [markdown-editor.component.ts](./frontend/src/app/shared/markdown-editor/markdown-editor.component.ts)
+* [markdown-editor.component.html](./frontend/src/app/shared/markdown-editor/markdown-editor.component.html)
+* [markdown-editor.component.scss](./frontend/src/app/shared/markdown-editor/markdown-editor.component.scss)
