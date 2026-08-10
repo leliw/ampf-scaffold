@@ -35,8 +35,19 @@ npm install @toast-ui/editor --force
     ]
     ```
 
+## Frontend - Marked & marked-highlight
+
+Install Marked & marked-highlight.
+
+```bash
+npm install marked
+npm install marked-highlight
+npm install highlight.js
+```
+
 ## Frontend - shared
 
 * [markdown-editor.component.ts](./frontend/src/app/shared/markdown-editor/markdown-editor.component.ts)
 * [markdown-editor.component.html](./frontend/src/app/shared/markdown-editor/markdown-editor.component.html)
 * [markdown-editor.component.scss](./frontend/src/app/shared/markdown-editor/markdown-editor.component.scss)
+* [markdown.pipe.ts](./frontend/src/app/shared/markdown.pipe.ts)
