@@ -10,6 +10,6 @@ import { ConfigService } from '../config.service';
     templateUrl: './home.html',
     styleUrl: './home.scss',
 })
-export class Home { 
-      public configService = inject(ConfigService);
+export class Home {
+    public configService = inject(ConfigService);
 }
