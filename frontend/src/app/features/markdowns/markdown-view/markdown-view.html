@@ -1,0 +1,11 @@
+<div class="full-screen-container">
+    <div class="main-content no-overflow">
+        <div class="container overflow">
+            <div class="content" [innerHTML]="resource.value()?.content | markdown"></div>
+        </div>
+        <button mat-fab color="primary" [routerLink]="['/markdowns', resource.value()?.id, 'edit']">
+            <mat-icon>edit</mat-icon>
+        </button>
+    </div>
+    <app-navigation-bar />
+</div>

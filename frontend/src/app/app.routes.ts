@@ -43,4 +43,17 @@ export const routes: Routes = [
         path: 'items/:itemId', title: "Edit item", canActivate: [authGuard], data: { roles: ['user'] },
         loadComponent: () => import('./features/items/item-edit/item-edit').then(m => m.ItemEdit)
     },
+    {
+        path: 'markdowns', title: "Markdowns", canActivate: [authGuard], data: { roles: ['user'] },
+        loadComponent: () => import('./features/markdowns/markdown-table/markdown-table').then(m => m.MarkdownTable)
+    },
+    {
+        path: 'markdowns/:markdownId', title: "View markdown", canActivate: [authGuard], data: { roles: ['user'] },
+        loadComponent: () => import('./features/markdowns/markdown-view/markdown-view').then(m => m.MarkdownView)
+    },
+    {
+        path: 'markdowns/:markdownId/edit', title: "Edit markdown", canActivate: [authGuard], data: { roles: ['user'] },
+        loadComponent: () => import('./features/markdowns/markdown-edit/markdown-edit').then(m => m.MarkdownEdit)
+    },
+
 ];

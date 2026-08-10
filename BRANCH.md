@@ -51,3 +51,43 @@ npm install highlight.js
 * [markdown-editor.component.html](./frontend/src/app/shared/markdown-editor/markdown-editor.component.html)
 * [markdown-editor.component.scss](./frontend/src/app/shared/markdown-editor/markdown-editor.component.scss)
 * [markdown.pipe.ts](./frontend/src/app/shared/markdown.pipe.ts)
+
+## Frontend - features
+
+* [markdown.service.ts](./frontend/src/app/features/markdowns/markdown.service.ts)
+* [markdown-table.html](./frontend/src/app/features/markdowns/markdown-table/markdown-table.html)
+* [markdown-table.ts](./frontend/src/app/features/markdowns/markdown-table/markdown-table.ts)
+* [markdown-edit.html](./frontend/src/app/features/markdowns/markdown-edit/markdown-edit.html)
+* [markdown-edit.ts](./frontend/src/app/features/markdowns/markdown-edit/markdown-edit.ts)
+* [markdown-view.html](./frontend/src/app/features/markdowns/markdown-view/markdown-view.html)
+* [markdown-view.ts](./frontend/src/app/features/markdowns/markdown-view/markdown-view.ts)
+* [markdown-view.scss](./frontend/src/app/features/markdowns/markdown-view/markdown-view.scss)
+* [app.routes.ts](./frontend/src/app/app.routes.ts)
+
+    ```diff
+        },
+    +    {
+    +        path: 'markdowns', title: "Markdowns", canActivate: [authGuard], data: { roles: ['user'] },
+    +        loadComponent: () => import('./features/markdowns/markdown-table/markdown-table').then(m => m.MarkdownTable)
+    +    },
+    +    {
+    +        path: 'markdowns/:markdownId', title: "View markdown", canActivate: [authGuard], data: { roles: ['user'] },
+    +        loadComponent: () => import('./features/markdowns/markdown-view/markdown-view').then(m => m.MarkdownView)
+    +    },
+    +    {
+    +        path: 'markdowns/:markdownId/edit', title: "Edit markdown", canActivate: [authGuard], data: { roles: ['user'] },
+    +        loadComponent: () => import('./features/markdowns/markdown-edit/markdown-edit').then(m => m.MarkdownEdit)
+    +    },
+    ];
+    ```
+
+* [navigation-bar.ts](./frontend/src/app/core/navigation-bar/navigation-bar.ts)
+
+    ```diff
+        </a>
+    +    <a mat-list-item routerLink="/markdowns">
+    +        <mat-icon matListItemIcon>wysiwyg</mat-icon>
+    +        <span matListItemTitle>Markdowns</span>
+    +    </a>
+        <a mat-list-item [matMenuTriggerFor]="menu">
+    ```
