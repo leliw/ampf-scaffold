@@ -1,3 +1,17 @@
-# Branch - CRUD - base
+# Branch - CRUD - Markdown
 
-Simple CRUD feature.
+CRUD with Markdown field. It is mostly the same as basic CRUD.
+
+## Backend
+
+### Application
+
+* [markdown_model.py](./backend/app/features/markdowns/markdown_model.py)
+* [markdown_service.py](./backend/app/features/markdowns/markdown_service.py)
+* [storage_def.py](./backend/app/storage_def.py)
+* [routers/markdowns.py](./backend/app/routers/markdowns.py)
+* [main.py](./backend/app/main.py)
+
+### Tests
+
+* [tests/unit/routers/test_markdowns.py](./backend/tests/unit/routers/test_markdowns.py)

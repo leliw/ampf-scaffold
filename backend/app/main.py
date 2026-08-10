@@ -7,7 +7,7 @@ from dependencies import lifespan
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from log_config import setup_logging
-from routers import auth, config, items, users
+from routers import auth, config, items, markdowns, users
 from version import __version__
 
 _log = logging.getLogger(__name__)
@@ -27,10 +27,13 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(config.router, prefix="/api/config")
 app.include_router(users.router, prefix="/api/users")
 app.include_router(items.router, prefix="/api/items")
+app.include_router(markdowns.router, prefix="/api/markdowns")
+
 
 @app.get("/api/ping")
 async def ping() -> None:
     """Keep container alive."""
+
 
 @app.get("/{full_path:path}")
 async def catch_all(full_path: str):
@@ -38,6 +41,7 @@ async def catch_all(full_path: str):
         return await get_static_file_response("static/browser", full_path)
     else:
         raise HTTPException(status_code=404, detail="Not found")
+
 
 @app.exception_handler(KeyNotExistsException)
 async def exception_not_found_callback(request: Request, exc: KeyNotExistsException):

@@ -99,4 +99,5 @@ class Authorize:
 def get_item_service(factory: FactoryDep) -> ItemService:
     return ItemService(factory.get_collection(Item))
 
+
 ItemServiceDep = Annotated[ItemService, Depends(get_item_service)]
