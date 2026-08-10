@@ -2,10 +2,10 @@
 
 ## Branches
 
-* [base](tree/base) - basic project
-* [infra](tree/infra) - terraform infrastructure for basic project
-* [users-&-auth](tree/users-%26-auth) - authentication, authorization and user management (local)
-* [crud-base](tree/crud-base) - basic CRUD functionality
+* [base](https://github.com/leliw/ampf-scaffold/tree/base) - basic project
+* [infra](https://github.com/leliw/ampf-scaffold/tree/infra) - terraform infrastructure for basic project
+* [users-&-auth](https://github.com/leliw/ampf-scaffold/tree/users-%26-auth) - authentication, authorization and user management (local)
+* [crud-base](https://github.com/leliw/ampf-scaffold/tree/crud-base) - basic CRUD functionality
 
 ## Create a project
 
