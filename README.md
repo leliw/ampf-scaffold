@@ -1,5 +1,12 @@
 # Angular Material + FastAPI scaffold
 
+## Branches
+
+* [base](/leliw/ampf-scaffold/tree/base) - basic project
+* [infra](/leliw/ampf-scaffold/tree/infra) - terraform infrastructure for basic project
+* [users-&-auth](/leliw/ampf-scaffold/tree/users-%26-auth) - authentication, authorization and user management (local)
+* [crud-base](/leliw/ampf-scaffold/tree/crud-base) - basic CRUD functionality
+
 ## Create a project
 
 ### Git project
