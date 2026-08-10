@@ -1,1 +1,3 @@
-# Branch - users & auth
+# Branch - CRUD - base
+
+Simple CRUD feature.
