@@ -56,13 +56,22 @@ def get_auth_service(config: AppConfigDep, factory: FactoryDep) -> AuthService:
 
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
 AuthTokenDep = Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="api/login"))]
+OptionalAuthTokenDep = Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="api/login", auto_error=False))]
 
 
 async def decode_token(auth_service: AuthServiceDep, token: AuthTokenDep) -> TokenPayload:
     return await auth_service.decode_token(token)
 
 
+async def optional_decode_token(auth_service: AuthServiceDep, token: OptionalAuthTokenDep) -> TokenPayload | None:
+    if not token:
+        _log.debug("No token provided")
+        return None
+    return await auth_service.decode_token(token)
+
+
 TokenPayloadDep = Annotated[TokenPayload, Depends(decode_token)]
+OptionalTokenPayloadDep = Annotated[TokenPayload | None, Depends(optional_decode_token)]
 
 
 class Authorize:
@@ -81,7 +90,8 @@ class Authorize:
 async def get_dependency_container(background_tasks: BackgroundTasks, token_payload: TokenPayloadDep):
     with DependencyRegistry.scope() as container:
         container.add(background_tasks)
-        container.add(token_payload)
+        if token_payload:
+            container.add(token_payload)
         yield container
 
 
