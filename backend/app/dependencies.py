@@ -11,9 +11,8 @@ _log = logging.getLogger(__name__)
 
 
 def lifespan(config: AppConfig):
-    DependencyRegistry.clear()
+    DependencyRegistry.clear_objects()
     app_state = AppState.create(config)
-    DependencyRegistry.add(app_state)
     DependencyRegistry.add_all(app_state)
 
     @asynccontextmanager
@@ -25,11 +24,10 @@ def lifespan(config: AppConfig):
     return lifespan
 
 
-AppStateDep = Annotated[AppState, Depends(get_dependency(AppState))]
 AppConfigDep = Annotated[AppConfig, Depends(get_dependency(AppConfig))]
 
 
-def not_production(app_state: AppStateDep) -> bool:
-    if app_state.config.production:
+def not_production(config: AppConfigDep) -> bool:
+    if config.production:
         raise HTTPException(status_code=404, detail="Not found")
-    return not app_state.config.production
+    return not config.production

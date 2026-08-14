@@ -1,6 +1,6 @@
 from ampf.base import CollectionDef
-from pydantic import BaseModel
 from core.feature_flags import FeatureFlags
+from pydantic import BaseModel
 
 # fmt: off
 STORAGE_DEF = [
