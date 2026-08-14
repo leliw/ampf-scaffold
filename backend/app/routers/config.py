@@ -1,7 +1,6 @@
-from pydantic import BaseModel
-
 from dependencies import AppConfigDep
 from fastapi import APIRouter
+from pydantic import BaseModel
 
 router = APIRouter(tags=["Client config"])
 
