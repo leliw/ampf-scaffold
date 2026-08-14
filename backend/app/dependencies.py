@@ -4,12 +4,12 @@ from typing import Annotated
 
 from ampf.auth import AuthService, InsufficientPermissionsError, TokenPayload
 from ampf.base import BaseAsyncFactory, EmailTemplate, SmtpEmailSender
-from ampf.dependency import DependencyRegistry, get_dependency
+from ampf.dependency import DependencyContainer, DependencyRegistry, get_dependency
 from app_state import AppState
 from core.app_config import AppConfig
 from core.roles import Role
 from core.users.user_service import UserService
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
 _log = logging.getLogger(__name__)
@@ -76,3 +76,13 @@ class Authorize:
             return True
         else:
             raise InsufficientPermissionsError()
+
+
+async def get_dependency_container(background_tasks: BackgroundTasks, token_payload: TokenPayloadDep):
+    with DependencyRegistry.scope() as container:
+        container.add(background_tasks)
+        container.add(token_payload)
+        yield container
+
+
+DependencyContainerDep = Annotated[DependencyContainer, Depends(get_dependency_container)]

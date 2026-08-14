@@ -4,7 +4,7 @@ from core.feature_flags import FeatureFlags
 from core.users.user_model import UserInDB
 
 # fmt: off
-STORAGE_DEF = [
+STORAGE_DEF: list[CollectionDef] = [
     CollectionDef("users", UserInDB, "username", subcollections=[
     ])
 ]
