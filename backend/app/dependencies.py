@@ -4,15 +4,13 @@ from typing import Annotated
 
 from ampf.auth import AuthService, InsufficientPermissionsError, TokenPayload
 from ampf.base import BaseAsyncFactory, EmailTemplate, SmtpEmailSender
-from ampf.dependency import DependencyRegistry, get_dependency
+from ampf.dependency import DependencyContainer, DependencyRegistry, get_dependency
 from app_state import AppState
 from core.app_config import AppConfig
 from core.roles import Role
 from core.users.user_service import UserService
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from features.items.item_model import Item
-from features.items.item_service import ItemService
 
 _log = logging.getLogger(__name__)
 
@@ -58,13 +56,22 @@ def get_auth_service(config: AppConfigDep, factory: FactoryDep) -> AuthService:
 
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
 AuthTokenDep = Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="api/login"))]
+OptionalAuthTokenDep = Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="api/login", auto_error=False))]
 
 
 async def decode_token(auth_service: AuthServiceDep, token: AuthTokenDep) -> TokenPayload:
     return await auth_service.decode_token(token)
 
 
+async def optional_decode_token(auth_service: AuthServiceDep, token: OptionalAuthTokenDep) -> TokenPayload | None:
+    if not token:
+        _log.debug("No token provided")
+        return None
+    return await auth_service.decode_token(token)
+
+
 TokenPayloadDep = Annotated[TokenPayload, Depends(decode_token)]
+OptionalTokenPayloadDep = Annotated[TokenPayload | None, Depends(optional_decode_token)]
 
 
 class Authorize:
@@ -80,7 +87,12 @@ class Authorize:
             raise InsufficientPermissionsError()
 
 
-def get_item_service(factory: FactoryDep) -> ItemService:
-    return ItemService(factory.get_collection(Item))
+async def get_dependency_container(background_tasks: BackgroundTasks, token_payload: OptionalTokenPayloadDep):
+    with DependencyRegistry.scope() as container:
+        container.add(background_tasks)
+        if token_payload:
+            container.add(token_payload)
+        yield container
 
-ItemServiceDep = Annotated[ItemService, Depends(get_item_service)]
+
+DependencyContainerDep = Annotated[DependencyContainer, Depends(get_dependency_container)]
