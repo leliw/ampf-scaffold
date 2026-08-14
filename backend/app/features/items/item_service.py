@@ -3,14 +3,15 @@ from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 from uuid import UUID
 
-from ampf.base import BaseAsyncStorage
+from ampf.base import BaseAsyncCollectionStorage
+from ampf.dependency import DependencyRegistry
 from features.items.item_model import Item, ItemCreate, ItemHeader, ItemPatch, ItemUpdate
 
 _log = logging.getLogger(__name__)
 
-
+@DependencyRegistry.register_class
 class ItemService:
-    def __init__(self, storage: BaseAsyncStorage[Item]):
+    def __init__(self, storage: BaseAsyncCollectionStorage[Item]):
         self.storage = storage
 
     async def post(self, value_create: ItemCreate) -> Item:

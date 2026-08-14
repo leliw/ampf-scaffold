@@ -3,15 +3,17 @@ from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 from uuid import UUID
 
-from ampf.base import BaseAsyncStorage
+from ampf.base import BaseAsyncCollectionStorage
+from ampf.dependency import DependencyRegistry
 
 from .markdown_model import Markdown, MarkdownCreate, MarkdownHeader, MarkdownPatch, MarkdownUpdate
 
 _log = logging.getLogger(__name__)
 
 
+@DependencyRegistry.register_class
 class MarkdownService:
-    def __init__(self, storage: BaseAsyncStorage[Markdown]):
+    def __init__(self, storage: BaseAsyncCollectionStorage[Markdown]):
         self.storage = storage
 
     async def post(self, value_create: MarkdownCreate) -> Markdown:
