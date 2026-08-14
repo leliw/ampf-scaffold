@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from ampf.base import BaseAsyncFactory
 from core.app_config import AppConfig
 from fastapi import FastAPI
-from storage_def import STORAGE_DEF
+from storage_def import register_collections
 
 _log = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class AppState:
             _log.warning("InMemoryFactory is used - it's only for tests!")
         else:
             raise ValueError("No factory setup!")
-        factory.register_collections(STORAGE_DEF)
+        register_collections(factory)
         return factory
 
     @asynccontextmanager
