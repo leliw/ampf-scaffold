@@ -1,0 +1,26 @@
+<div class="textarea-wrapper">
+    <mat-form-field class="full-width">
+        <mat-label>{{ label() }}</mat-label>
+        <textarea matInput cdkTextareaAutosize [cdkAutosizeMinRows]="minRows()" [placeholder]="placeholder()"
+            [formControl]="internalControl" (blur)="onBlur()" [cdkAutosizeMaxRows]="maxRows()"></textarea>
+        <ng-content select="mat-error"></ng-content>
+    </mat-form-field>
+    <button mat-icon-button type="button" class="fullscreen-btn" [disabled]="internalControl.disabled"
+        (click)="openFullscreen()">
+        <mat-icon>fullscreen</mat-icon>
+    </button>
+</div>
+
+<ng-template #fullscreenEditorTpl>
+    <mat-card class="fullscreen-editor">
+        <mat-card-header>
+            <mat-card-title>{{ title() }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <div #editorHost class="editor-host"></div>
+            <button mat-icon-button class="close-btn" (click)="closeFullscreen()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-card-content>
+    </mat-card>
+</ng-template>

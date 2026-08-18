@@ -47,5 +47,17 @@ export const routes: Routes = [
         path: 'files', title: "Files", canActivate: [authGuard], data: { roles: ['user'] },
         loadComponent: () => import('./features/files/file-table/file-table').then(m => m.FileTable)
     },
+    {
+        path: 'markdowns', title: "Markdowns", canActivate: [authGuard], data: { roles: ['user'] },
+        loadComponent: () => import('./features/markdowns/markdown-table/markdown-table').then(m => m.MarkdownTable)
+    },
+    {
+        path: 'markdowns/:markdownId', title: "View markdown", canActivate: [authGuard], data: { roles: ['user'] },
+        loadComponent: () => import('./features/markdowns/markdown-view/markdown-view').then(m => m.MarkdownView)
+    },
+    {
+        path: 'markdowns/:markdownId/edit', title: "Edit markdown", canActivate: [authGuard], data: { roles: ['user'] },
+        loadComponent: () => import('./features/markdowns/markdown-edit/markdown-edit').then(m => m.MarkdownEdit)
+    },
 
 ];
