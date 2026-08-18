@@ -23,8 +23,6 @@ export class ItemService {
 
     public readonly endpoint = '/api/items';
 
-    constructor() { }
-
     new(): Item {
         return {
             title: '',
