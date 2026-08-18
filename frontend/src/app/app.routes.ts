@@ -43,4 +43,9 @@ export const routes: Routes = [
         path: 'items/:itemId', title: "Edit item", canActivate: [authGuard], data: { roles: ['user'] },
         loadComponent: () => import('./features/items/item-edit/item-edit').then(m => m.ItemEdit)
     },
+    {
+        path: 'files', title: "Files", canActivate: [authGuard], data: { roles: ['user'] },
+        loadComponent: () => import('./features/files/file-table/file-table').then(m => m.FileTable)
+    },
+
 ];
