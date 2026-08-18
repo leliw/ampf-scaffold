@@ -7,7 +7,7 @@ from dependencies import lifespan
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from log_config import setup_logging
-from routers import auth, config, items, users
+from routers import auth, config, files, items, users
 from version import __version__
 
 _log = logging.getLogger(__name__)
@@ -27,6 +27,7 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(config.router, prefix="/api/config")
 app.include_router(users.router, prefix="/api/users")
 app.include_router(items.router, prefix="/api/items")
+app.include_router(files.router, prefix="/api/files")
 
 @app.get("/api/ping")
 async def ping() -> None:

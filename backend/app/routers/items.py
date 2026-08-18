@@ -1,6 +1,5 @@
 from uuid import UUID
 
-from ampf.dependency import DependencyRegistry
 from ampf.fastapi import JsonStreamingResponse
 from dependencies import DependencyContainerDep
 from fastapi import APIRouter
