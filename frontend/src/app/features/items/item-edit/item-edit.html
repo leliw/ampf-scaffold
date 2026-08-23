@@ -2,14 +2,19 @@
     <form (submit)="submit($event)">
         <mat-card>
             <mat-card-header>
-                <mat-card-title>{{ isCreateMode() ? 'New Item' : 'Edit Item: ' + form.title().value() }}</mat-card-title>
+                <mat-card-title>{{ isCreateMode() ? 'New Item' : 'Edit Item: ' + form.title().value()
+                    }}</mat-card-title>
+                @if (isLoading()) {
+                <span class="flex-spacer"> </span>
+                <mat-spinner diameter="20"></mat-spinner>
+                }
             </mat-card-header>
             <mat-card-content>
-                <div class="container">
+                <fieldset class="container" [disabled]="isBusy()">
 
                     <mat-form-field appearance="fill" class="full-width">
                         <mat-label>Title</mat-label>
-                        <input matInput [formField]="form.title"/>
+                        <input matInput [formField]="form.title" />
                         @if (form.title().invalid() && form.title().touched()) {
                         @for (error of form.title().errors(); track $index) {
                         <mat-error>{{ error.message }}</mat-error>
@@ -27,12 +32,12 @@
                         }
                     </mat-form-field>
 
-                </div>
+                </fieldset>
             </mat-card-content>
             <mat-card-actions>
                 <button type="button" matButton (click)="cancel()" [disabled]="isBusy()">Cancel</button>
                 <button type="submit" matButton="filled" [disabled]="!canSubmit()">
-                    @if (isBusy()) {
+                    @if (isSaving()) {
                     <mat-spinner diameter="20"></mat-spinner>
                     } @else {
                     {{ isCreateMode() ? 'Create' : 'Save' }}
