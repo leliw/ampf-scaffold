@@ -26,9 +26,16 @@ div.centered-form {
                 text-align: center;
                 color: var(--mat-sys-on-surface-variant);
             }
-
         }
 
+        mat-card-content {
+            fieldset.container:first-child {
+                border: 0px;
+                margin: 0;
+                padding: 0;
+                min-width: 0;
+            }
+        }
     }
 
     @media (min-width: 600px) {
