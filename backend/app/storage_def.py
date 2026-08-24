@@ -2,6 +2,7 @@ from ampf.base import BaseAsyncCollectionStorage, BaseAsyncFactory, CollectionDe
 from ampf.dependency import DependencyRegistry
 from core.feature_flags import FeatureFlags
 from core.users.user_model import UserInDB
+from features.documents.document_model import Document
 from features.items.item_model import Item
 from features.markdowns.markdown_model import Markdown
 
@@ -10,7 +11,8 @@ STORAGE_DEF: list[CollectionDef] = [
     CollectionDef("users", UserInDB, "username", subcollections=[
     ]),
     CollectionDef("items", Item),
-    CollectionDef("markdowns", Markdown)
+    CollectionDef("markdowns", Markdown),
+    CollectionDef("documents", Document),
 ]
 # fmt: on
 
