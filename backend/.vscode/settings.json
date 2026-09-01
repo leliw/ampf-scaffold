@@ -12,7 +12,7 @@
         "-rfE",
         "--disable-warnings",
         "--show-capture=log",
-        "--show-capture=stdout",
+        // "--show-capture=stdout",
         "--durations=5"
     ],
     "python.testing.unittestEnabled": false,
