@@ -87,7 +87,7 @@ class Authorize:
             raise InsufficientPermissionsError()
 
 
-async def get_dependency_container(background_tasks: BackgroundTasks, token_payload: TokenPayloadDep):
+async def get_dependency_container(background_tasks: BackgroundTasks, token_payload: OptionalTokenPayloadDep):
     with DependencyRegistry.scope() as container:
         container.add(background_tasks)
         if token_payload:

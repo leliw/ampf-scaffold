@@ -19,7 +19,11 @@
     "@angular/material": "^22.0.5",
     "@angular/platform-browser": "^22.0.0",
     "@angular/router": "^22.0.0",
+    "@toast-ui/editor": "^3.2.2",
+    "highlight.js": "^11.11.1",
     "jwt-decode": "^4.0.0",
+    "marked": "^18.0.9",
+    "marked-highlight": "^2.2.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

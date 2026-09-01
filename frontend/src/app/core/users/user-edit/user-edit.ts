@@ -53,12 +53,12 @@ export class UserEdit {
   });
   originalModel = linkedSignal(() => {
     const user = this.resource.value() ?? this.userService.new();
-    return { ...user, password: user.password ?? '' };
+    return { ...user, password: user.password ?? '', name: user.name ?? '' };
   });
   model = linkedSignal(() => structuredClone(this.originalModel()));
   form = form(this.model, (s) => {
     required(s.username, { message: 'Username is required' });
-    required(s.email, { message: 'Email is required' })
+    required(s.email, { message: 'Email is required' });
     email(s.email);
     required(s.name, { message: 'Name is required' });
   });

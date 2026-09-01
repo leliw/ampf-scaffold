@@ -1,0 +1,14 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-chip-grid {
+  input {
+    min-width: 150px;
+  }
+}

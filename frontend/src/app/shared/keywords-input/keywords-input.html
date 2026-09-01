@@ -1,0 +1,34 @@
+<mat-form-field appearance="fill" class="full-width">
+  <mat-label>{{ label() }}</mat-label>
+  
+  <mat-chip-grid #chipGrid [disabled]="disabled()" aria-label="Keywords editing">
+    @for (keyword of keywords(); track keyword) {
+      <mat-chip-row
+        [editable]="editable() && !disabled()"
+        [removable]="removable() && !disabled()"
+        (edited)="edit($index, $event)"
+        (removed)="remove($index)"
+        [aria-description]="'Press Enter to edit ' + keyword">
+        {{ keyword }}
+        @if (removable() && !disabled()) {
+          <button matChipRemove [attr.aria-label]="'Remove ' + keyword">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        }
+      </mat-chip-row>
+    }
+
+    <input
+      [placeholder]="placeholder()"
+      [matChipInputFor]="chipGrid"
+      [matChipInputSeparatorKeyCodes]="separatorKeyCodes()"
+      [matChipInputAddOnBlur]="true"
+      [disabled]="disabled()"
+      (matChipInputTokenEnd)="add($event)" 
+      (blur)="onTouched()" />
+  </mat-chip-grid>
+
+  @if (hint()) {
+    <mat-hint>{{ hint() }}</mat-hint>
+  }
+</mat-form-field>

@@ -1,0 +1,45 @@
+<div class="centered-form">
+    <form (submit)="submit($event)">
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>{{ isCreateMode() ? 'New Markdown' : 'Edit Markdown: ' + form.title().value()
+                    }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="container">
+
+                    <mat-form-field appearance="fill" class="full-width">
+                        <mat-label>Title</mat-label>
+                        <input matInput [formField]="form.title" />
+                        @if (form.title().invalid() && form.title().touched()) {
+                        @for (error of form.title().errors(); track $index) {
+                        <mat-error>{{ error.message }}</mat-error>
+                        }
+                        }
+                    </mat-form-field>
+
+                    <app-markdown-editor [formField]="form.content" label="Content" placeholder="Content"
+                        class="full-width" [minRows]="10" [maxRows]="20"
+                        [title]="isCreateMode() ? 'New Markdown' : 'Edit Markdown: ' + form.title().value()">
+                        @if (form.content().invalid() && form.content().touched()) {
+                        @for (error of form.content().errors(); track $index) {
+                        <mat-error>{{ error.message }}</mat-error>
+                        }
+                        }
+                    </app-markdown-editor>
+
+                </div>
+            </mat-card-content>
+            <mat-card-actions>
+                <button type="button" matButton (click)="cancel()" [disabled]="isBusy()">Cancel</button>
+                <button type="submit" matButton="filled" [disabled]="!canSubmit()">
+                    @if (isBusy()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                    {{ isCreateMode() ? 'Create' : 'Save' }}
+                    }
+                </button>
+            </mat-card-actions>
+        </mat-card>
+    </form>
+</div>

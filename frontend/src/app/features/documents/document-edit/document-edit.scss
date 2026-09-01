@@ -1,0 +1,31 @@
+dl.metadata-info {
+  display: grid;
+  grid-template-columns: minmax(100px, auto) 1fr;
+  gap: 10px 24px;
+  align-items: center;
+
+  margin: 20px 0 8px 0;
+  padding: 16px;
+  border-radius: 8px;
+  
+  /* Wsparcie dla zmiennych Material Design 3 oraz fallback */
+  background-color: var(--mat-sys-surface-container-low, rgba(0, 0, 0, 0.03));
+  border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.08));
+  font-size: 0.875rem;
+
+  dt {
+    margin: 0;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+    white-space: nowrap;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 400;
+    color: var(--mat-sys-on-surface, rgba(0, 0, 0, 0.87));
+    word-break: break-word;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.825rem;
+  }
+}

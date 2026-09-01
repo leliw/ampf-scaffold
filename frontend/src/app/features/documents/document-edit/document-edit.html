@@ -1,0 +1,66 @@
+<div class="centered-form">
+    <form (submit)="submit($event)">
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>
+                    {{ isCreateMode() ? 'New Document' : 'Edit Document: ' + (form.name().value() || '') }}
+                </mat-card-title>
+                @if (isLoading()) {
+                <span class="flex-spacer"></span>
+                <mat-spinner diameter="20"></mat-spinner>
+                }
+            </mat-card-header>
+
+            <mat-card-content>
+                <fieldset class="container" [disabled]="isBusy()">
+                    <app-file-upload-container (fileSelected)="onFileSelected($event)" [progress]="uploadProgress()" />
+
+                    <!-- Document name -->
+                    <mat-form-field appearance="fill" class="full-width">
+                        <mat-label>Document name</mat-label>
+                        <input matInput [formField]="form.name" placeholder="e.g. Report_2025.pdf" />
+                        @if (form.name().invalid() && form.name().touched()) {
+                        @for (error of form.name().errors(); track $index) {
+                        <mat-error>{{ error.message }}</mat-error>
+                        }
+                        }
+                    </mat-form-field>
+
+                    <!-- Source URL -->
+                    <mat-form-field appearance="fill" class="full-width">
+                        <mat-label>Source URL</mat-label>
+                        <input matInput [formField]="form.src_url" placeholder="https://example.com/source" />
+                        <mat-icon matSuffix>link</mat-icon>
+                    </mat-form-field>
+
+                    <!-- Keywords (Chips) -->
+                    <app-keywords-input label="Keywords" placeholder="Add keyword..." [formField]="form.keywords" />
+
+                    <!-- Metadata information (edit mode only) -->
+                    @if (!isCreateMode() && resource.value(); as doc) {
+                    <dl class="metadata-info">
+                        <dt>MIME Type:</dt>
+                        <dd>{{ doc.content_type || '—' }}</dd>
+                        <dt>Created:</dt>
+                        <dd> {{ doc.created_at | date : 'yyyy-MM-dd HH:mm:ss'}}</dd>
+                        <dt>Updated:</dt>
+                        <dd> {{ doc.updated_at | date : 'yyyy-MM-dd HH:mm:ss'}}</dd>
+                    </dl>
+                    }
+
+                </fieldset>
+            </mat-card-content>
+
+            <mat-card-actions align="end">
+                <button type="button" mat-button (click)="cancel()" [disabled]="isBusy()">Cancel</button>
+                <button type="submit" mat-flat-button color="primary" [disabled]="!canSubmit()">
+                    @if (isSaving()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                    {{ isCreateMode() ? 'Create' : 'Update' }}
+                    }
+                </button>
+            </mat-card-actions>
+        </mat-card>
+    </form>
+</div>

@@ -4,7 +4,7 @@
         // "tests/integration",
         "--cov=app",
         "--no-cov-on-fail",
-        "--cov-fail-under=90",
+        "--cov-fail-under=92",
         // "--log-file=tests.log",
         "--log-format=%(asctime)s %(thread)d %(levelname)s %(name)s: %(message)s",
         "--log-date-format=%H:%M:%S.%f",

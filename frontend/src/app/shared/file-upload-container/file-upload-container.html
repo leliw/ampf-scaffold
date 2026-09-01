@@ -1,0 +1,41 @@
+<div class="upload-container" 
+     (dragover)="onDragOver($event)" 
+     (dragleave)="onDragLeave($event)" 
+     (drop)="onDrop($event)"
+     [class.drag-over]="isDragOver()"
+     [class.disabled]="isDisabled()">
+    
+    @if (progress() > 0 && progress() <= 100) { 
+        <div class="progress-bar">
+            <mat-progress-bar 
+                [mode]="progress() < 100 ? 'determinate' : 'indeterminate'"
+                [value]="progress()">
+            </mat-progress-bar>
+            @if (progress() < 100) { 
+                <span>Uploading: {{ progress() }}%</span>
+            } @else {
+                <span>Processing...</span>
+            }
+        </div>
+    } @else if (effectiveUploadError()) {
+        <div class="error-message">
+            {{ effectiveUploadError() }}
+        </div>
+    } @else {
+        @if (selectedFile(); as file) {
+            <div class="selected-file">
+                Selected file: {{ file.name }} ({{ formattedFileSize() }})
+            </div>
+        } @else {
+            <div class="prompt-message">
+                {{ promptMessage() }}
+            </div>
+        }
+    }
+
+    <button type="button" mat-raised-button color="primary" (click)="clickFileInput()" [disabled]="isDisabled()">
+        <mat-icon>attach_file</mat-icon>
+        {{ selectedFile() ? 'Change File' : 'Select File' }}
+    </button>
+    <input type="file" #fileInput (change)="onFileSelected($event)" style="display:none" [accept]="accept()">
+</div>
