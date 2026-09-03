@@ -1,6 +1,8 @@
 resource "google_project_service" "required_apis" {
   for_each = toset([
     "cloudresourcemanager.googleapis.com",
+    "firestore.googleapis.com",
+    "secretmanager.googleapis.com",
   ])
 
   project                    = var.project_id

@@ -10,46 +10,47 @@ ENV_DIR="$INFRA_DIR/env/$ENVIRONMENT"
 BACKEND_DIR="$PROJECT_ROOT/backend"
 set -euo pipefail
 
-# ===================== KONFIGURACJA ŚRODOWISK =====================
+# ===================== ENVIRONMENT CONFIGURATION =====================
 case $ENVIRONMENT in
-  dev|it)
+  dev|it|int)
     IMAGE_TAG=""
     ;;
-  local)
+  local|lcl)
     IMAGE_TAG=${2:-$(git rev-parse --short HEAD)}
     ;;
   prod)
     IMAGE_TAG=$(uv run --directory="$BACKEND_DIR" app/version.py)
     ;;
   *)
-    echo "Nieznane środowisko: $ENVIRONMENT"
+    echo "Unknown environment: $ENVIRONMENT"
     exit 1
     ;;
 esac
 
-# Sprawdzamy, czy IMAGE_TAG nie jest pusty przed operacjami na obrazach
+# Check if IMAGE_TAG is not empty before Docker operations
 if [ -n "$IMAGE_TAG" ]; then
     FULL_IMAGE_LATEST="$DOCKER_REGISTRY/$IMAGE_NAME:latest"
     FULL_IMAGE_TAG="$DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
 
-    echo "Sprawdzam czy obraz $FULL_IMAGE_TAG istnieje..."
+    echo "Checking if image $FULL_IMAGE_TAG exists..."
 
-    # Sprawdzenie istnienia obrazu w Artifact Registry
-    if gcloud artifacts docker images describe $FULL_IMAGE_TAG > /dev/null 2>&1; then
-        echo "✅ Obraz $FULL_IMAGE_TAG już istnieje — pomijam build."
+    # Check if image exists in Artifact Registry
+    if gcloud artifacts docker images describe "$FULL_IMAGE_TAG" > /dev/null 2>&1; then
+        echo "✅ Image $FULL_IMAGE_TAG already exists — skipping build."
     else
-        echo "❌ Obraz nie istnieje — rozpoczynam build..."
+        echo "❌ Image does not exist — starting build..."
         docker build \
-            --tag $FULL_IMAGE_LATEST \
-            --tag $FULL_IMAGE_TAG \
+            --tag "$FULL_IMAGE_LATEST" \
+            --tag "$FULL_IMAGE_TAG" \
             "$PROJECT_ROOT"
-        docker push $FULL_IMAGE_LATEST
-        docker push $FULL_IMAGE_TAG
-        echo "✅ Zbudowano i wypchnięto nowy obraz."
+        docker push "$FULL_IMAGE_LATEST"
+        docker push "$FULL_IMAGE_TAG"
+        echo "✅ Built and pushed new image."
     fi
 else
-    echo " ℹ️ Pomijam operacje Dockerowe."
+    echo " ℹ️ Skipping Docker operations."
 fi
+
 terraform init \
     -backend-config="${ENV_DIR}/backend.hcl" \
     -reconfigure
@@ -58,8 +59,10 @@ terraform apply \
     -var="image_tag=${IMAGE_TAG}" \
     -var-file="${ENV_DIR}/terraform.tfvars"
 
-if [ "$ENVIRONMENT" = "local" ] || [ "$ENVIRONMENT" = "it" ] || [ "$ENVIRONMENT" = "dev" ]; then
-  mkdir -p ${ENV_DIR}
-  terraform output --raw env_file > "${ENV_DIR}/.env.app"
-  terraform output --raw service_account_key > "${ENV_DIR}/.gcp_credentials.json"
-fi
+case "$ENVIRONMENT" in
+  local|lcl|it|int|dev)
+    mkdir -p "${ENV_DIR}"
+    terraform output --raw env_file > "${ENV_DIR}/.env.app"
+    terraform output --raw service_account_key > "${ENV_DIR}/.gcp_credentials.json"
+    ;;
+esac

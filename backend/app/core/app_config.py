@@ -11,6 +11,11 @@ class AppConfig(BaseSettings):
 
     data_dir: str | None = None
 
+    project_id: str | None = None
+    gcp_database: str | None = None
+    gcp_root_storage: str = ""
+    gcp_bucket_name: str | None = None
+
     auth: AuthConfig = AuthConfig(jwt_secret_key="")
     default_user: DefaultUser = DefaultUser(username="admin", password="")
     smtp: SmtpConfig = SmtpConfig()

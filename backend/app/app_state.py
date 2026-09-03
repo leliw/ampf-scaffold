@@ -18,15 +18,16 @@ class AppState:
 
     @classmethod
     def create(cls, config: AppConfig) -> "AppState":
-        factory = cls.create_factory(config)
-        return cls(
-            config=config,
-            factory=factory,
-        )
+        if config.gcp_root_storage or config.gcp_bucket_name or config.gcp_database:
+            from ampf.gcp import GcpAsyncFactory
 
-    @staticmethod
-    def create_factory(config: AppConfig) -> BaseAsyncFactory:
-        if config.data_dir:
+            factory = GcpAsyncFactory(
+                root_storage=config.gcp_root_storage,
+                bucket_name=config.gcp_bucket_name,
+                project_id=config.project_id,
+                database=config.gcp_database,
+            )
+        elif config.data_dir:
             from ampf.local import LocalAsyncFactory
 
             factory = LocalAsyncFactory(config.data_dir)
@@ -39,7 +40,7 @@ class AppState:
         else:
             raise ValueError("No factory setup!")
         register_collections(factory)
-        return factory
+        return cls(config=config, factory=factory)
 
     @asynccontextmanager
     async def manage_lifecycle(self, app: FastAPI):

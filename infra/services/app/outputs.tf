@@ -37,6 +37,11 @@ output "env_file" {
       "${key}=\"${val}\""
       if val != null
     ],
+    [
+      for key, secret in data.google_secret_manager_secret_version.secrets :
+      "${key}=\"${secret.secret_data}\""
+    ],
     [""]
   ))
+  sensitive = true
 }
