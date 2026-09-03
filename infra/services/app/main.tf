@@ -9,7 +9,10 @@ locals {
   service_account_display_name = "Service Account for Cloud Run - ${var.name_prefix}-${local.service_name}"
   service_account_roles = [
     "roles/datastore.user",               # Uses Firestore
-    "roles/secretmanager.secretAccessor", # Reads secrets 
+    "roles/secretmanager.secretAccessor", # Reads secrets
+    # Cloud Storage
+    "roles/storage.objectUser",
+    "roles/iam.serviceAccountTokenCreator",
     # OpenTelemetry
     "roles/logging.logWriter",       # Logi
     "roles/monitoring.metricWriter", # Metryki
@@ -30,6 +33,7 @@ locals {
       GOOGLE_CLOUD_PROJECT = var.project_id
       PROJECT_ID           = var.project_id
       GCP_DATABASE         = google_firestore_database.database.name
+      GCP_BUCKET_NAME      = var.bucket_name
     },
     !var.create_app ? {
       for key, sub in local.pubsub_subscriptions :
@@ -37,9 +41,9 @@ locals {
     } : {}
   )
   env_vars_secrets = {
-    AUTH__JWT_SECRET_KEY       = "AUTH__JWT_SECRET_KEY"
-    DEFAULT_USER__PASSWORD     = "DEFAULT_USER__PASSWORD"
-    SMTP__PASSWORD             = "SMTP__PASSWORD"
+    AUTH__JWT_SECRET_KEY   = "AUTH__JWT_SECRET_KEY"
+    DEFAULT_USER__PASSWORD = "DEFAULT_USER__PASSWORD"
+    SMTP__PASSWORD         = "SMTP__PASSWORD"
   }
 }
 
