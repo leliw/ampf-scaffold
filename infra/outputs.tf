@@ -12,4 +12,5 @@ output "service_account_key" {
 }
 output "env_file" {
   value = module.app.env_file
+  sensitive = true
 }

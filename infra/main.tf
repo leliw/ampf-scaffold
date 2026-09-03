@@ -3,7 +3,7 @@ locals {
 
   name_prefix = "${var.environment}-${local.app_name}"
   env_prefix  = upper(replace(local.name_prefix, "-", "_"))
-  create_app  = !contains(["it", "local", "dev"], var.environment)
+  create_app  = !contains(["it", "int", "local", "lcl", "dev"], var.environment)
 
   env_vars = {}
 }
