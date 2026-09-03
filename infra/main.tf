@@ -1,12 +1,17 @@
 locals {
   app_name = "applyfoundry"
 
-  name_prefix = "${var.environment}-${local.app_name}"
-  env_prefix  = upper(replace(local.name_prefix, "-", "_"))
-  create_app  = !contains(["it", "int", "local", "lcl", "dev"], var.environment)
-  bucket_name = "${local.name_prefix}-${random_id.bucket_suffix.hex}"
+  name_prefix     = "${var.environment}-${local.app_name}"
+  env_prefix      = upper(replace(local.name_prefix, "-", "_"))
+  create_app      = !contains(["it", "int", "local", "lcl", "dev"], var.environment)
+  create_services = !contains(["lcl", "dev"], var.environment)
+  public_services = contains(["it", "int"], var.environment)
+  bucket_name     = "${local.name_prefix}-${random_id.bucket_suffix.hex}"
 
-  env_vars = {}
+  env_vars = {
+    PDF_2_MARKDOWN_REQUESTS_TOPIC = module.pdf2markdown.pubsub_topics["REQUEST_TOPIC"]
+    TASK_RUNNER                   = local.create_app ? "PubsubPush" : "PubsubPull"
+  }
 }
 
 module "app" {
@@ -22,6 +27,24 @@ module "app" {
   custom_domain    = var.custom_domain
   env_vars_plain   = local.env_vars
   env_vars_secrets = {}
+}
+
+module "pdf2markdown" {
+  source      = "./services/pdf2md"
+  create_app  = local.create_services
+  image_tag   = "0.2.0"
+  name_prefix = local.name_prefix
+  project_id  = var.project_id
+  region      = var.region
+  environment = var.environment
+  public      = local.public_services
+  bucket_name = google_storage_bucket.main.name
+  env_vars_plain = {
+    PROJECT_ID      = var.project_id
+    WORKERS         = 3
+    GCP_BUCKET_NAME = google_storage_bucket.main.name
+  }
+  depends_on = [google_project_iam_member.artifact_registry_cross_project]
 }
 
 resource "random_id" "bucket_suffix" {

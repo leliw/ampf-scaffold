@@ -8,18 +8,30 @@ locals {
   service_account_name         = "${var.name_prefix}-${local.service_name}-sa"
   service_account_display_name = "Service Account for Cloud Run - ${var.name_prefix}-${local.service_name}"
   service_account_roles = [
+    "roles/run.invoker",                  # Calls other scripts
     "roles/datastore.user",               # Uses Firestore
-    "roles/secretmanager.secretAccessor", # Reads secrets
+    "roles/secretmanager.secretAccessor", # Reads secrets 
     # Cloud Storage
     "roles/storage.objectUser",
     "roles/iam.serviceAccountTokenCreator",
+    # Pub/Sub
+    "roles/pubsub.publisher",
+    "roles/pubsub.subscriber",
+    "roles/pubsub.viewer",
     # OpenTelemetry
     "roles/logging.logWriter",       # Logi
     "roles/monitoring.metricWriter", # Metryki
     "roles/cloudtrace.agent",        # Trace'y
   ]
-  pubsub_topics        = {}
-  pubsub_subscriptions = {}
+  pubsub_topics = {
+    PDF_2_MARKDOWN_RESPONSES_TOPIC = {
+      topic_name    = "${var.name_prefix}-markdown-converted"
+      push_endpoint = "/pub-sub/task-processors/pdf_2_markdown"
+    }
+  }
+  pubsub_subscriptions = {
+    PDF_2_MARKDOWN_RESPONSES_SUBSCRIPTION = "${local.pubsub_topics["PDF_2_MARKDOWN_RESPONSES_TOPIC"].topic_name}-sub"
+  }
   env_vars_plain = merge(var.env_vars_plain,
     {
       DEFAULT_USER__EMAIL         = "marcin.leliwa@gmail.com"
@@ -34,6 +46,9 @@ locals {
       PROJECT_ID           = var.project_id
       GCP_DATABASE         = google_firestore_database.database.name
       GCP_BUCKET_NAME      = var.bucket_name
+    },
+    {
+      PDF_2_MARKDOWN_RESPONSES_TOPIC = local.pubsub_topics["PDF_2_MARKDOWN_RESPONSES_TOPIC"].topic_name
     },
     !var.create_app ? {
       for key, sub in local.pubsub_subscriptions :
@@ -81,7 +96,7 @@ module "pubsub_topics" {
   environment              = var.environment
   topic_name               = each.value.topic_name
   subscription_name_suffix = var.create_app ? "push" : "sub"
-  push_endpoint            = var.create_app ? try("${module.app[0].url}/${each.value.push_endpoint}", null) : null
+  push_endpoint            = var.create_app ? try("${module.app[0].url}${each.value.push_endpoint}", null) : null
 }
 
 module "custom_domain" {
