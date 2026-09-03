@@ -22,7 +22,7 @@ Standard environment names:
 - `uat` - user acceptance tests
 - `int` - environment required for integration tests
 - `dev` - environment required for local development
-- `local` - local or partially local run
+- `lcl` - local or partially local run
 
 Files in each environment subdirectory:
 
