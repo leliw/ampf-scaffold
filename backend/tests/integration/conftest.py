@@ -1,27 +1,32 @@
 import importlib
-from collections.abc import Generator
+import logging
+from pathlib import Path
 
 import main
 import pytest
-from ampf.auth import AuthConfig, DefaultUser
+from ampf.auth import DefaultUser
 from ampf.testing import ApiTestClient
 from core.app_config import AppConfig
 from dependencies import lifespan
+from dotenv import load_dotenv
 from log_config import setup_logging
+
+_log = logging.getLogger(__name__)
 
 
 @pytest.fixture
-def config() -> AppConfig:
+def config(monkeypatch: pytest.MonkeyPatch) -> AppConfig:
+    env_dir = (Path(__file__).resolve().parent.parent.parent.parent / "infra" / "env" / "int").resolve()
+    _log.info("env_dir: %s", env_dir)
+    load_dotenv(env_dir / ".env.app", override=True)
+    monkeypatch.setenv("GOOGLE_APPLICATION_CREDENTIALS", str(env_dir / ".gcp_credentials.json"))
     return AppConfig(
-        data_dir=None,
-        production=False,
         default_user=DefaultUser(username="test", email="test@test.com", password="test"),
-        auth=AuthConfig(jwt_secret_key="test"),
     )
 
 
 @pytest.fixture
-def client(config: AppConfig) -> Generator[ApiTestClient]:
+def client(config: AppConfig):
     setup_logging()
     importlib.reload(main)
     app = main.app
