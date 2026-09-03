@@ -1,6 +1,7 @@
-from ampf.base import CollectionDef
-from pydantic import BaseModel
+from ampf.base import BaseAsyncCollectionStorage, BaseAsyncFactory, CollectionDef
+from ampf.dependency import DependencyRegistry
 from core.feature_flags import FeatureFlags
+from pydantic import BaseModel
 
 # fmt: off
 STORAGE_DEF = [
@@ -8,6 +9,19 @@ STORAGE_DEF = [
     ])
 ]
 # fmt: on
+
+
+def register_collections(factory: BaseAsyncFactory, collection_defs: list[CollectionDef] = STORAGE_DEF) -> None:
+    if collection_defs == STORAGE_DEF:
+        factory.register_collections(STORAGE_DEF)
+
+    def register_storage(sd):
+        @DependencyRegistry.register_for_type(BaseAsyncCollectionStorage[sd.clazz])  # type: ignore
+        def get_collection():
+            return factory.get_collection(sd.clazz)
+
+    for sd in collection_defs:
+        register_storage(sd)
 
 
 def set_storage_formats(feature_flags: FeatureFlags):
