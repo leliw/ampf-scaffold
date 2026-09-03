@@ -1,5 +1,9 @@
+from pathlib import Path
+
 from ampf.testing import ApiTestClient
 from features.documents.document_model import Document, DocumentCreate, DocumentPatch
+
+from tests.conftest import read_request_file
 
 
 def test_get_all_empty(client: ApiTestClient):
@@ -66,3 +70,13 @@ def test_post_get_put_delete(client: ApiTestClient):
     # Test DELETE the document
     client.delete(f"/api/documents/{document.id}", 204)
     client.get(f"/api/documents/{document.id}", 404)
+
+
+def test_post_binary(client: ApiTestClient):
+    # Given: A binary document
+    file_path = Path("./tests/data/sample.pdf")
+    files = read_request_file(file_path)
+    # When: It is sent
+    document = client.post_typed("/api/documents", 201, Document, files=files, data={"name": "Sample"})
+    # Then: A document is returned
+    assert document.id
