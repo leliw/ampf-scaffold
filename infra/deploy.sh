@@ -1,6 +1,6 @@
 #!/bin/bash
 DOCKER_REGISTRY="europe-west3-docker.pkg.dev/development-428212/docker-eu"
-IMAGE_NAME=ampf-scaffold
+IMAGE_NAME=applyfoundry
 
 ENVIRONMENT=${1:-dev}
 

@@ -15,7 +15,7 @@ _log = logging.getLogger(__name__)
 setup_logging()
 app_config = AppConfig()  # pyright: ignore[reportCallIssue]
 app = FastAPI(
-    title="AMPF Scaffold",
+    title="Apply Foundry",
     version=__version__,
     lifespan=lifespan(app_config),
     docs_url="/docs" if not app_config.production else None,

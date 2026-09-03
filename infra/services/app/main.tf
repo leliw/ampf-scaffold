@@ -1,6 +1,6 @@
 locals {
   service_name   = "app"
-  image_name     = "ampf-scaffold"
+  image_name     = "applyfoundry"
   image_registry = "europe-west3-docker.pkg.dev/development-428212/docker-eu"
 
   create_custom_domain         = var.create_app && var.public && var.custom_domain != null

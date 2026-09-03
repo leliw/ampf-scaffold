@@ -1,5 +1,5 @@
 locals {
-  app_name = "ampf-scaffold"
+  app_name = "applyfoundry"
 
   name_prefix = "${var.environment}-${local.app_name}"
   env_prefix  = upper(replace(local.name_prefix, "-", "_"))
