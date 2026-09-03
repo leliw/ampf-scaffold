@@ -1,7 +1,7 @@
 {
     "python.testing.pytestArgs": [
         "tests/unit",
-        // "tests/integration",
+        "tests/integration",
         "--cov=app",
         "--no-cov-on-fail",
         "--cov-fail-under=92",
