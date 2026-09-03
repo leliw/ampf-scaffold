@@ -1,6 +1,10 @@
+from pathlib import Path
+from typing import Any
+
 import pytest
 from ampf.auth import Tokens
 from ampf.base import BaseAsyncFactory, BaseFactory
+from ampf.mimetypes import get_content_type
 from ampf.testing import ApiTestClient
 from app_state import AppState
 
@@ -29,3 +33,13 @@ def tokens(factory: BaseFactory, client: ApiTestClient) -> Tokens:
 @pytest.fixture
 def headers(tokens: Tokens) -> dict[str, str]:
     return {"Authorization": f"Bearer {tokens.access_token}"}
+
+
+# Helper functions
+
+
+def read_request_file(file_path: Path) -> dict[str, Any]:
+    file_name = file_path.name
+    content_type = get_content_type(file_name)
+    file_content = file_path.read_bytes()
+    return {"file": (file_name, file_content, content_type)}
