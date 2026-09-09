@@ -1,24 +1,26 @@
 import logging
-from contextlib import asynccontextmanager
 from dataclasses import dataclass
 
+import httpx2
 from ampf.base import BaseAsyncFactory
+from ampf.tasks.tasks_app import TasksAppState
 from core.app_config import AppConfig
-from fastapi import FastAPI
 from storage_def import register_collections
 
 _log = logging.getLogger(__name__)
 
 
-@dataclass
-class AppState:
+@dataclass(kw_only=True)
+class AppState(TasksAppState[AppConfig]):
     config: AppConfig
     factory: BaseAsyncFactory
+    httpx_async_client: httpx2.AsyncClient
     _initialized: bool = False
 
     @classmethod
     def create(cls, config: AppConfig) -> "AppState":
-        if config.gcp_root_storage or config.gcp_bucket_name or config.gcp_database:
+        httpx_async_client = httpx2.AsyncClient()
+        if config.gcp_database or config.gcp_root_storage or config.gcp_bucket_name:
             from ampf.gcp import GcpAsyncFactory
 
             factory = GcpAsyncFactory(
@@ -26,6 +28,7 @@ class AppState:
                 bucket_name=config.gcp_bucket_name,
                 project_id=config.project_id,
                 database=config.gcp_database,
+                httpx_async_client=httpx_async_client,
             )
         elif config.data_dir:
             from ampf.local import LocalAsyncFactory
@@ -40,11 +43,8 @@ class AppState:
         else:
             raise ValueError("No factory setup!")
         register_collections(factory)
-        return cls(config=config, factory=factory)
-
-    @asynccontextmanager
-    async def manage_lifecycle(self, app: FastAPI):
-        if not self._initialized:
-            self._initialized = True
-
-        yield self
+        return cls(
+            config=config,
+            factory=factory,
+            httpx_async_client=httpx_async_client,
+        )

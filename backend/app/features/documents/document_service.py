@@ -1,12 +1,13 @@
 import asyncio
 import logging
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from copy import copy
 from datetime import UTC, datetime
 from uuid import UUID
 
-from ampf.base import BaseAsyncCollectionStorage, BaseAsyncFactory, Blob, BlobCreate
+from ampf.base import BaseAsyncCollectionStorage, BaseAsyncFactory, Blob, BlobCreate, KeyNotExistsException
 from ampf.dependency import DependencyRegistry
+from ampf.tasks import TaskStatus
 
 from .document_model import Document, DocumentCreate, DocumentMetadata, DocumentPatch
 
@@ -27,9 +28,16 @@ class DocumentService:
             tg.create_task(self.storage.create(document))
         return document
 
-    async def get_all(self) -> AsyncIterator[Document]:
+    async def get_all(self) -> AsyncGenerator[Document]:
         async for document in self.storage.get_all():
             yield document
+
+    async def get_by_ids(self, ids: list[UUID]) -> AsyncGenerator[Document]:
+        for id in ids:
+            try:
+                yield await self.storage.get(id)
+            except KeyNotExistsException:
+                pass
 
     async def get(self, id: UUID) -> Document:
         return await self.storage.get(id)
@@ -72,3 +80,11 @@ class DocumentService:
         async with asyncio.TaskGroup() as tg:
             tg.create_task(self.storage.delete(id))
             tg.create_task(self.blob_storage.delete_async(document.blob_name))
+
+    async def update_task_status(
+        self,
+        id: UUID,
+        status: TaskStatus,
+        error_message: str | None = None,
+    ) -> Document:
+        return await self.storage.patch(id, {"status": status, "error_message": error_message})

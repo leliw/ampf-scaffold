@@ -3,6 +3,7 @@ from typing import Self
 from uuid import UUID, uuid4
 
 from ampf.base import BaseBlobMetadata
+from ampf.tasks import TaskStatus
 from pydantic import BaseModel, Field
 
 
@@ -26,6 +27,8 @@ class Document(BaseModel):
     keywords: list[str] | None = None
     src_url: str | None = None
     blob_name: str
+    status: TaskStatus = TaskStatus.PENDING
+    error_message: str | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 

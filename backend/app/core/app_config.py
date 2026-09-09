@@ -1,3 +1,5 @@
+from typing import Literal
+
 from ampf.auth import AuthConfig, DefaultUser, ResetPasswordMailConfig, SmtpConfig
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from version import __version__
@@ -20,3 +22,9 @@ class AppConfig(BaseSettings):
     default_user: DefaultUser = DefaultUser(username="admin", password="")
     smtp: SmtpConfig = SmtpConfig()
     reset_password_mail: ResetPasswordMailConfig = ResetPasswordMailConfig()
+
+    task_runner: Literal["Direct", "Background", "PubsubPull", "PubsubPush"]
+
+    pdf_2_markdown_requests_topic: str | None = None
+    pdf_2_markdown_responses_topic: str | None = None
+    pdf_2_markdown_responses_subscription: str | None = None

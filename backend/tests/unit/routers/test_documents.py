@@ -1,4 +1,5 @@
 from pathlib import Path
+from uuid import uuid4
 
 from ampf.testing import ApiTestClient
 from features.documents.document_model import Document, DocumentCreate, DocumentPatch
@@ -80,3 +81,28 @@ def test_post_binary(client: ApiTestClient):
     document = client.post_typed("/api/documents", 201, Document, files=files, data={"name": "Sample"})
     # Then: A document is returned
     assert document.id
+
+
+def test_post_get_by_ids(client: ApiTestClient):
+    # Given: Stored document
+    file_content = "This is a test markdown document."
+    file_name = "test_document.md"
+    content_type = "text/markdown"
+    files = {"file": (file_name, file_content, content_type)}
+    document_create = DocumentCreate(name=file_name, content_type=content_type)
+    document = client.post_typed(
+        "/api/documents",
+        201,
+        Document,
+        files=files,
+        data=document_create.model_dump(mode="json"),
+    )
+    # When: Get document list with document id
+    documents = client.get_typed_list("/api/documents", 200, Document, params={"ids": document.id})
+    # Then: Document is returned
+    assert len(documents) == 1
+    assert documents[0].name == document.name
+    # When: Get document list with any id
+    documents = client.get_typed_list("/api/documents", 200, Document, params={"ids": uuid4()})
+    # Then: Document isn't returned
+    assert len(documents) == 0

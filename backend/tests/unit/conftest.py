@@ -1,4 +1,5 @@
 import importlib
+import logging
 from collections.abc import Generator
 
 import main
@@ -9,14 +10,20 @@ from core.app_config import AppConfig
 from dependencies import lifespan
 from log_config import setup_logging
 
+_log = logging.getLogger(__name__)
+
 
 @pytest.fixture
 def config() -> AppConfig:
     return AppConfig(
         data_dir=None,
+        gcp_root_storage="",
+        gcp_bucket_name=None,
+        gcp_database=None,
         production=False,
         default_user=DefaultUser(username="test", email="test@test.com", password="test"),
         auth=AuthConfig(jwt_secret_key="test"),
+        task_runner="Direct",
     )
 
 
