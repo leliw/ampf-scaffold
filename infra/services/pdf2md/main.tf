@@ -20,6 +20,7 @@ locals {
     [
       "roles/pubsub.publisher",
       "roles/pubsub.subscriber",
+      "roles/run.invoker",
       "roles/iam.serviceAccountTokenCreator",
     ],
     [

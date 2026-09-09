@@ -4,7 +4,7 @@ locals {
   name_prefix     = "${var.environment}-${local.app_name}"
   env_prefix      = upper(replace(local.name_prefix, "-", "_"))
   create_app      = !contains(["it", "int", "local", "lcl", "dev"], var.environment)
-  create_services = !contains(["lcl", "dev"], var.environment)
+  create_services = !contains(["lcl"], var.environment)
   public_services = contains(["it", "int"], var.environment)
   bucket_name     = "${local.name_prefix}-${random_id.bucket_suffix.hex}"
 
