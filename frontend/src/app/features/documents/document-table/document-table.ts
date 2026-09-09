@@ -159,6 +159,7 @@ export class DocumentTable implements AfterViewInit {
                 next: () => {
                     this.updateDocumentInTable({ ...doc, status: 'RUNNING' });
                     this.snackbar.open(`Document "${doc.name}" conversion started`, 'Close', { duration: 2000 });
+                    this.startPollingIfPending();
                 },
                 error: (err) => {
                     console.error('Error starting conversion:', err);
