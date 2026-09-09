@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, inject, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -14,6 +15,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
+import { of, switchMap, takeWhile, timer } from 'rxjs';
 import { NavigationBar } from '../../../core/navigation-bar/navigation-bar';
 import { MatTableDataSourceClientSide } from '../../../shared/mat-table-data-source-client-side';
 import { SimpleDialogComponent } from '../../../shared/simple-dialog.component';
@@ -44,6 +46,10 @@ export class DocumentTable implements AfterViewInit {
     @ViewChild(MatTable) table!: MatTable<Document>;
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
+
+    private destroyRef = inject(DestroyRef);
+    private isPolling = false;
+
     dataSource = new MatTableDataSourceClientSide<Document>;
 
     displayedColumns: string[] = [
@@ -51,6 +57,7 @@ export class DocumentTable implements AfterViewInit {
         'content_type',
         'keywords',
         'src_url',
+        'status',
         'created_at',
         'updated_at',
         'actions',
@@ -66,9 +73,75 @@ export class DocumentTable implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        this.dataSource.setPaginatorAndSort(this.paginator, this.sort);
+        this.dataSource.setPaginatorAndSortPipe(this.paginator, this.sort)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => this.startPollingIfPending());
     }
 
+    isPending(status?: string): boolean {
+        return status === 'RUNNING' || status === 'PENDING';
+    }
+
+    private startPollingIfPending(): void {
+        if (this.isPolling) return;
+
+        // Sprawdź czy są jakiekolwiek dokumenty w toku
+        const pendingDocs = this.dataSource.data.filter((doc) => this.isPending(doc.status) && !!doc.id);
+        if (pendingDocs.length === 0) return;
+
+        this.isPolling = true;
+
+        timer(0, 2000)
+            .pipe(
+                takeUntilDestroyed(this.destroyRef),
+                switchMap(() => {
+                    // Pobieramy TYLKO ID tych, które aktualnie są w trakcie przetwarzania
+                    const pendingIds = this.dataSource.data
+                        .filter((doc) => this.isPending(doc.status) && !!doc.id)
+                        .map((doc) => doc.id!);
+
+                    if (pendingIds.length === 0) {
+                        return of([] as Document[]);
+                    }
+
+                    // Odpytujemy równolegle TYLKO aktywne dokumenty
+                    return this.documentService.getByIds(pendingIds);
+                }),
+                // Timer działa dopóki w ostatniej iteracji były jakieś aktywne dokumenty
+                takeWhile((results) => {
+                    if (results.length === 0) {
+                        this.isPolling = false;
+                        return false;
+                    }
+                    return true;
+                }, true)
+            )
+            .subscribe({
+                next: (updatedDocs) => {
+                    if (!updatedDocs || updatedDocs.length === 0) return;
+
+                    // Aktualizuj tylko zmienione wiersze i wyświetl SnackBar przy sukcesie/błędzie
+                    for (const doc of updatedDocs) {
+                        const previousDoc = this.dataSource.data.find((d) => d.id === doc.id);
+                        const wasPending = previousDoc && this.isPending(previousDoc.status);
+
+                        if (wasPending && !this.isPending(doc.status)) {
+                            if (doc.status === 'COMPLETED' || doc.status === 'SUCCESS') {
+                                this.snackbar.open(`Conversion of "${doc.name}" completed successfully!`, 'Close', { duration: 3000 });
+                            } else if (doc.status === 'FAILED' || doc.status === 'ERROR') {
+                                this.snackbar.open(`Conversion of "${doc.name}" failed: ${doc.error_message || 'Unknown error'}`, 'Close', { duration: 4000 });
+                            }
+                        }
+
+                        this.updateDocumentInTable(doc);
+                    }
+                },
+                error: (err) => {
+                    console.error('Error during polling:', err);
+                    this.isPolling = false;
+                },
+            });
+    }
     onClickRow(row: Document): void {
         this.editRow(row);
     }
@@ -77,6 +150,31 @@ export class DocumentTable implements AfterViewInit {
         this.router.navigate(['/documents', row.id]);
     }
 
+    convertDocument(doc: Document): void {
+        if (!doc.id) return;
+
+        this.documentService.convertToMd(doc.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => {
+                    this.updateDocumentInTable({ ...doc, status: 'RUNNING' });
+                    this.snackbar.open(`Document "${doc.name}" conversion started`, 'Close', { duration: 2000 });
+                },
+                error: (err) => {
+                    console.error('Error starting conversion:', err);
+                    this.snackbar.open('Error starting document conversion.', 'Close', {
+                        duration: 3000,
+                    });
+                },
+            });
+    }
+
+    private updateDocumentInTable(updatedDoc: Document): void {
+        this.dataSource.data = this.dataSource.data.map(item =>
+            item.id === updatedDoc.id ? { ...item, ...updatedDoc } : item
+        );
+        this.table?.renderRows();
+    }
 
     downloadDocument(doc: Document): void {
         if (!doc.id) return;
@@ -113,16 +211,18 @@ export class DocumentTable implements AfterViewInit {
             })
             .afterClosed().subscribe(result => {
                 if (result && row.id) {
-                    this.documentService.delete(row.id).subscribe({
-                        next: () => {
-                            this.dataSource.data = this.dataSource.data.filter(item => item.id !== row.id);
-                            this.table.renderRows();
-                            this.snackbar.open(`Document "${row.name}" deleted successfully`, 'Close', { duration: 1500 });
-                        },
-                        error: (error) => {
-                            this.snackbar.open(`Error deleting document "${row.name}": ${error.message}`, 'Close', { duration: 3000 });
-                        }
-                    });
+                    this.documentService.delete(row.id)
+                        .pipe(takeUntilDestroyed(this.destroyRef))
+                        .subscribe({
+                            next: () => {
+                                this.dataSource.data = this.dataSource.data.filter(item => item.id !== row.id);
+                                this.table.renderRows();
+                                this.snackbar.open(`Document "${row.name}" deleted successfully`, 'Close', { duration: 1500 });
+                            },
+                            error: (error) => {
+                                this.snackbar.open(`Error deleting document "${row.name}": ${error.message}`, 'Close', { duration: 3000 });
+                            }
+                        });
                 }
             });
     }

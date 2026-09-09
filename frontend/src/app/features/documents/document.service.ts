@@ -12,6 +12,8 @@ export interface Document {
   blob_name?: string;
   keywords?: string[];
   src_url?: string;
+  status?: string;
+  error_message?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -58,6 +60,10 @@ export class DocumentService {
    */
   getAll(): Observable<Document[]> {
     return this.http.get<Document[]>(this.endpoint);
+  }
+
+  getByIds(ids: string[]): Observable<Document[]> {
+    return this.http.get<Document[]>(this.endpoint, {params: {ids}});
   }
 
   /**
@@ -139,5 +145,9 @@ export class DocumentService {
       reportProgress: true,
       observe: 'events',
     });
+  }
+
+  convertToMd(documentId: string): Observable<void> {
+    return this.http.post<void>(`${this.endpoint}/${documentId}/convert-to-md`, {});
   }
 }
