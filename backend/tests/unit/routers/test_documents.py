@@ -1,8 +1,13 @@
 from pathlib import Path
 from uuid import uuid4
 
+import pytest
+from ampf.dependency import DependencyRegistry
+from ampf.tasks import TaskRegistry
 from ampf.testing import ApiTestClient
+from features.documents.document_conversion_processor import DocumentConversionProcessor
 from features.documents.document_model import Document, DocumentCreate, DocumentPatch
+from integrations.conversion_model import ConversionRequest, ConversionResponse
 
 from tests.conftest import read_request_file
 
@@ -73,7 +78,20 @@ def test_post_get_put_delete(client: ApiTestClient):
     client.get(f"/api/documents/{document.id}", 404)
 
 
-def test_post_binary(client: ApiTestClient):
+@pytest.fixture
+def mock_pdf_2_markdown(monkeypatch: pytest.MonkeyPatch):
+    task_name = "pdf_2_markdown"
+    monkeypatch.delitem(TaskRegistry._tasks, task_name)
+
+    # Override external service with mock
+    @TaskRegistry.register(task_name, external=False)
+    async def mock(request: ConversionRequest) -> None:
+        response = ConversionResponse(status="Error", error_message="Mock", original_request_metadata=request.metadata)
+        processor = DependencyRegistry.get(DocumentConversionProcessor)
+        await processor.process_conversion_response(response)
+
+
+def test_post_binary(client: ApiTestClient, mock_pdf_2_markdown):
     # Given: A binary document
     file_path = Path("./tests/data/sample.pdf")
     files = read_request_file(file_path)

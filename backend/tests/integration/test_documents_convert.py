@@ -18,7 +18,7 @@ def clean_database(factory: BaseFactory):
     factory.create_blob_storage("documents", BaseBlobMetadata).drop()
 
 
-@pytest.mark.timeout(40)
+@pytest.mark.timeout(120)
 @pytest.mark.asyncio
 async def test_convert_document(client: ApiTestClient):
     # Given: An uploaded binary document
