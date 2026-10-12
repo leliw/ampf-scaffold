@@ -1,10 +1,11 @@
 import logging
 from collections.abc import AsyncGenerator
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-from ampf.base import BaseAsyncCollectionStorage
+from ampf.base import BaseAsyncCollectionStorage, KeyNotExistsException
 from ampf.dependency import DependencyRegistry
+from ampf.tasks import TaskPatch, TaskStatus
 from features.items.item_model import Item, ItemCreate, ItemHeader, ItemPatch, ItemUpdate
 
 _log = logging.getLogger(__name__)
@@ -13,6 +14,7 @@ _log = logging.getLogger(__name__)
 class ItemService:
     def __init__(self, storage: BaseAsyncCollectionStorage[Item]):
         self.storage = storage
+        self.timeout_in_minutes = 30
 
     async def post(self, value_create: ItemCreate) -> Item:
         value = Item.create(value_create)
@@ -22,6 +24,19 @@ class ItemService:
     async def get_all(self) -> AsyncGenerator[ItemHeader]:
         async for v in self.storage.get_all():
             yield ItemHeader.model_validate(v.model_dump())
+
+    async def get_by_ids(self, ids: list[UUID]) -> AsyncGenerator[ItemHeader]:
+        timeout_threshold = datetime.now(UTC) - timedelta(minutes=self.timeout_in_minutes)
+        for id in ids:
+            try:
+                value = await self.storage.get(id)
+                if value.status == TaskStatus.RUNNING and (
+                    value.started_at is not None and value.started_at < timeout_threshold
+                ):
+                    value = await self.patch(id, value.finish("Timeout"))
+                yield value.to_header()
+            except KeyNotExistsException:
+                pass
 
     async def get(self, key: UUID) -> Item:
         return await self.storage.get(key)
@@ -33,7 +48,7 @@ class ItemService:
         value = value.model_copy(update=dict_update)
         await self.storage.put(key, value)
 
-    async def patch(self, key: UUID, value_patch: ItemPatch) -> Item:
+    async def patch(self, key: UUID, value_patch: ItemPatch | TaskPatch) -> Item:
         dict_patch = value_patch.model_dump(exclude_unset=True)
         dict_patch["updated_at"] = datetime.now(UTC)
         return await self.storage.patch(key, dict_patch)
