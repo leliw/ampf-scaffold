@@ -5,6 +5,7 @@ from typing import Annotated
 from ampf.auth import AuthService, InsufficientPermissionsError, TokenPayload
 from ampf.base import BaseAsyncFactory, EmailTemplate, SmtpEmailSender
 from ampf.dependency import DependencyContainer, DependencyRegistry, get_dependency
+from ampf.tasks.tasks_app import TasksAppState
 from app_state import AppState
 from core.app_config import AppConfig
 from core.roles import Role
@@ -19,14 +20,15 @@ def lifespan(config: AppConfig):
     DependencyRegistry.clear_objects()
     app_state = AppState.create(config)
     DependencyRegistry.add_all(app_state)
+    DependencyRegistry.add(app_state, TasksAppState)
 
     @asynccontextmanager
-    async def lifespan(app: FastAPI):
+    async def _lifespan(app: FastAPI):
         app.state.app_state = app_state
         async with app_state.manage_lifecycle(app):
             yield
 
-    return lifespan
+    return _lifespan
 
 
 AppConfigDep = Annotated[AppConfig, Depends(get_dependency(AppConfig))]

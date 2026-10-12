@@ -15,8 +15,12 @@ def config() -> AppConfig:
     return AppConfig(
         data_dir=None,
         production=False,
+        gcp_database=None,
+        gcp_root_storage = "",
+        gcp_bucket_name=None,
         default_user=DefaultUser(username="test", email="test@test.com", password="test"),
         auth=AuthConfig(jwt_secret_key="test"),
+        task_runner="Direct",
     )
 
 

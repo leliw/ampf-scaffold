@@ -54,4 +54,41 @@ Add topic, subsciption and proper roles.
 
 ## Backend
 
+### Application
+
+#### backend/app/core/app_config.py
+
+```diff
+    auth: AuthConfig = AuthConfig(jwt_secret_key="")
+    default_user: DefaultUser = DefaultUser(username="admin", password="")
+    smtp: SmtpConfig = SmtpConfig()
+    reset_password_mail: ResetPasswordMailConfig = ResetPasswordMailConfig()
++
++    task_runner: Literal["Direct", "Background", "PubsubPull", "PubsubPush"]
++
++    task_name_topic: str | None = None
++    task_name_subscription: str | None = None
+```
+
+#### backend/app/app_state.py
+
+```diff
+-@dataclass
+-class AppState:
+-    config: AppConfig
+-    factory: BaseAsyncFactory
++@dataclass(kw_only=True)
++class AppState(TasksAppState[AppConfig]):
+```
+
+#### backend/app/dependencies.py
+
+```diff
+def lifespan(config: AppConfig):
+    DependencyRegistry.clear_objects()
+    app_state = AppState.create(config)
+    DependencyRegistry.add_all(app_state)
++    DependencyRegistry.add(app_state, TasksAppState)
+```
+
 ## Frontend
