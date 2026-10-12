@@ -13,7 +13,7 @@ def test_get_all_empty(client: ApiTestClient):
 def test_post_get_put_delete(client: ApiTestClient):
     # POST
     value_create = ItemCreate(title="X", content="xxx")
-    value = client.post_typed("/api/items", 200, Item, json=value_create)
+    value = client.post_typed("/api/items", 202, Item, json=value_create)
 
     # GET
     r = client.get_typed(f"/api/items/{value.id}", 200, Item)

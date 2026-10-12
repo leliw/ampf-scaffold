@@ -6,9 +6,11 @@ import main
 import pytest
 from ampf.auth import DefaultUser
 from ampf.testing import ApiTestClient
+from app_state import AppState
 from core.app_config import AppConfig
 from dependencies import lifespan
 from dotenv import load_dotenv
+from features.items.item_model import Item
 from log_config import setup_logging
 
 _log = logging.getLogger(__name__)
@@ -22,7 +24,7 @@ def config(monkeypatch: pytest.MonkeyPatch) -> AppConfig:
     monkeypatch.setenv("GOOGLE_APPLICATION_CREDENTIALS", str(env_dir / ".gcp_credentials.json"))
     return AppConfig(
         default_user=DefaultUser(username="test", email="test@test.com", password="test"),
-    )
+    )  # pyright: ignore[reportCallIssue]
 
 
 @pytest.fixture
@@ -34,3 +36,6 @@ def client(config: AppConfig):
     app.router.lifespan_context = lifespan(config)
     with ApiTestClient(app) as client:
         yield client
+        # Clean up
+        app_state: AppState = app.state.app_state
+        app_state.factory.get_sync_factory().create_storage("items", Item).drop()
