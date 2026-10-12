@@ -305,3 +305,130 @@ class ItemProcessor:
 ```
 
 ## Frontend
+
+#### frontend/src/app/features/items/item.service.ts
+
+```diff
+ export interface ItemHeader {
+     id: string;
+     title: string;
++    status?: string;
++    error_message?: string;
+     created_at: string;
+     updated_at: string;
+ }
+```
+
+```diff
+         return this.http.get<ItemHeader[]>(this.endpoint);
+     }
+ 
++    getByIds(ids: string[]): Observable<ItemHeader[]> {
++        return this.http.get<ItemHeader[]>(this.endpoint, { params: { ids } });
++    }
++
+     create(body: Item): Observable<Item> {
+         return this.http.post<Item>(this.endpoint, body);
+     }
+```
+
+#### frontend/src/app/features/items/item-table/item-table.ts
+
+```diff
+-    displayedColumns: string[] = ['id', 'title', 'created_at', 'updated_at', 'actions'];
++    displayedColumns: string[] = ['id', 'title', 'status', 'created_at', 'updated_at', 'actions'];
+
+    private destroyRef = inject(DestroyRef);
++    private isPolling = false;
+```
+
+```diff
++    ngAfterViewInit(): void {
++        this.dataSource.setPaginatorAndSortPipe(this.paginator, this.sort)
++            .pipe(takeUntilDestroyed(this.destroyRef))
++            .subscribe(() => this.startPollingIfPending());
++    }
++
++    isPending(status?: string): boolean {
++        return status === 'RUNNING' || status === 'PENDING';
++    }
++
++    private startPollingIfPending(): void {
++        if (this.isPolling) return;
++
++        const pendingRows = this.dataSource.data.filter((doc) => this.isPending(doc.status) && !!doc.id);
++        if (pendingRows.length === 0) return;
++
++        this.isPolling = true;
++
++        timer(0, 2000)
++            .pipe(
++                takeUntilDestroyed(this.destroyRef),
++                switchMap(() => {
++                    const pendingIds = this.dataSource.data
++                        .filter((doc) => this.isPending(doc.status) && !!doc.id)
++                        .map((doc) => doc.id!);
++
++                    if (pendingIds.length === 0) {
++                        return of([] as ItemHeader[]);
++                    }
++
++                    return this.itemService.getByIds(pendingIds);
++                }),
++                takeWhile((results) => {
++                    if (results.length === 0) {
++                        this.isPolling = false;
++                        return false;
++                    }
++                    return true;
++                }, true)
++            )
++            .subscribe({
++                next: (updatedRows) => {
++                    if (!updatedRows || updatedRows.length === 0) return;
++
++                    for (const row of updatedRows) {
++                        const previousDoc = this.dataSource.data.find((d) => d.id === row.id);
++                        const wasPending = previousDoc && this.isPending(previousDoc.status);
++
++                        if (wasPending && !this.isPending(row.status)) {
++                            if (row.status === 'COMPLETED' || row.status === 'SUCCESS') {
++                                this.snackbar.open(`Conversion of "${row.title}" completed successfully!`, 'Close', { duration: 3000 });
++                            } else if (row.status === 'FAILED' || row.status === 'ERROR') {
++                                this.snackbar.open(`Conversion of "${row.title}" failed: ${row.error_message || 'Unknown error'}`, 'Close', { duration: 4000 });
++                            }
++                        }
++
++                        this.updateRowInTable(row);
++                    }
++                },
++                error: (err) => {
++                    console.error('Error during polling:', err);
++                    this.isPolling = false;
++                },
++            });
++    }
++
++    private updateRowInTable(updatedRow: ItemHeader): void {
++        this.dataSource.data = this.dataSource.data.map(item =>
++            item.id === updatedRow.id ? { ...item, ...updatedRow } : item
++        );
++        this.table?.renderRows();
++    }
+```
+
+#### /frontend/src/app/features/items/item-table/item-table.html
+
+```diff
+                     <td mat-cell *matCellDef="let row"> {{row.title}} </td>
+                 </ng-container>
+ 
++                <ng-container matColumnDef="status">
++                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Processing status </th>
++                    <td mat-cell *matCellDef="let row"> {{ row.status || '—' }} </td>
++                </ng-container>
++
+                 <ng-container matColumnDef="created_at">
+                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Created at </th>
+                     <td mat-cell *matCellDef="let row"> {{row.created_at}} </td>
+```

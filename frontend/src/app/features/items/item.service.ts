@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 export interface Item {
     id?: string;
     title: string;
+    status?: string;
+    error_message?: string;
     content: string;
     created_at?: string;
     updated_at?: string;
@@ -13,6 +15,8 @@ export interface Item {
 export interface ItemHeader {
     id: string;
     title: string;
+    status?: string;
+    error_message?: string;
     created_at: string;
     updated_at: string;
 }
@@ -34,6 +38,10 @@ export class ItemService {
 
     getAll(): Observable<ItemHeader[]> {
         return this.http.get<ItemHeader[]>(this.endpoint);
+    }
+
+    getByIds(ids: string[]): Observable<ItemHeader[]> {
+        return this.http.get<ItemHeader[]>(this.endpoint, { params: { ids } });
     }
 
     create(body: Item): Observable<Item> {
