@@ -4,7 +4,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { BehaviorSubject, filter, merge, Observable, tap } from "rxjs";
+import { BehaviorSubject, filter, merge, Observable, of, tap } from "rxjs";
 
 
 /**
@@ -79,18 +79,26 @@ export class MatTableDataSourceClientSide<ItemType> extends MatTableDataSource<I
     /**
      * Ustawia obiekty paginator i sort oraz je subskrybuje w
      * celu przechwycenia zmian i ustawienia odpowiednio URL
+     * @deprecated Use setPaginatorAndSortPipe
      * @param paginator 
      * @param sort 
      */
     public setPaginatorAndSort(paginator: MatPaginator | undefined, sort: MatSort | undefined) {
+        this.setPaginatorAndSortPipe(paginator, sort).subscribe();
+    }
+
+    public setPaginatorAndSortPipe(paginator: MatPaginator | undefined, sort: MatSort | undefined): Observable<void | unknown> {
         if (paginator)
             this.paginator = paginator
         if (sort)
             this.sort = sort
         if (this.paginator && this.sort) {
-            merge(this.filterChange, this.paginator.page, this.sort.sortChange).subscribe(() => {
+            return merge(this.filterChange, this.paginator.page, this.sort.sortChange).pipe(tap(() => {
                 this.updateUrl(this.createParams());
-            });
+            }));
+        }
+        else {
+            return of(null);
         }
     }
 
