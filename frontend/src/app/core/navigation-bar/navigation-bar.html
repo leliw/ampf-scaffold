@@ -8,3 +8,6 @@
         }
     </mat-nav-list>
 </mat-toolbar>
+<footer class="footer-version" aria-label="Application version">
+    v{{ configService.config()?.version ?? 'unknown' }}
+</footer>

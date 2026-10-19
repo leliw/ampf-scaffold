@@ -1,4 +1,3 @@
-import logging
 from contextlib import asynccontextmanager
 from typing import Annotated
 
@@ -7,8 +6,6 @@ from app_state import AppState
 from core.app_config import AppConfig
 from fastapi import Depends, FastAPI, HTTPException
 
-_log = logging.getLogger(__name__)
-
 
 def lifespan(config: AppConfig):
     DependencyRegistry.clear_objects()
@@ -16,12 +13,12 @@ def lifespan(config: AppConfig):
     DependencyRegistry.add_all(app_state)
 
     @asynccontextmanager
-    async def lifespan(app: FastAPI):
+    async def _lifespan(app: FastAPI):
         app.state.app_state = app_state
         async with app_state.manage_lifecycle(app):
             yield
 
-    return lifespan
+    return _lifespan
 
 
 AppConfigDep = Annotated[AppConfig, Depends(get_dependency(AppConfig))]
