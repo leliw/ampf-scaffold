@@ -1,0 +1,83 @@
+<div class="full-screen-container">
+    <div class="table-filter">
+        <mat-form-field>
+            <mat-label>Filter</mat-label>
+            <input matInput (keyup)="dataSource.applyFilter($event)" placeholder="Filter" #input>
+        </mat-form-field>
+    </div>
+
+    <div class="main-content no-overflow">
+        @if (dataSource.isLoading) {
+        <div class="loading-overlay">
+            <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+        </div>
+        }
+        @if (definition_resource.hasValue()) {
+        <div class="overflow">
+            <table mat-table [dataSource]="dataSource" matSort>
+
+                @for (column of columns(); track column.key) {
+                <ng-container [matColumnDef]="column.key">
+                    @if (column.sortable) {
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                        {{ column.label }}
+                    </th>
+                    } @else {
+                    <th mat-header-cell *matHeaderCellDef>
+                        {{ column.label }}
+                    </th>
+                    }
+
+                    <td mat-cell *matCellDef="let row">
+                        @if (column.type === 'date') {
+                        {{ getCellValue(row, column) | date:'medium' }}
+                        } @else if (column.type === "url") {
+                        @if ( getCellValue(row, column)) {
+                        <a [href]="getCellValue(row, column)" target="_blank" rel="noopener noreferrer" mat-icon-button color="primary" matTooltip="Open source" (click)="$event.stopPropagation()">
+                            <mat-icon>open_in_new</mat-icon>
+                        </a>
+                        } @else {
+                        —
+                        }
+                        } @else {
+                        {{ getCellValue(row, column) }}
+                        }
+                    </td>
+                </ng-container>
+                }
+
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let row">
+                        @if (actions().includes('view')) {
+                        <button mat-icon-button color="primary" (click)="viewRow(row); $event.stopPropagation()" matTooltip="View">
+                            <mat-icon>preview</mat-icon>
+                        </button>
+                        }
+                        @if (actions().includes('edit')) {
+                        <button mat-icon-button color="primary" (click)="editRow(row); $event.stopPropagation()" matTooltip="Edit">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        }
+                        @if (actions().includes('delete')) {
+                        <button mat-icon-button color="warn" (click)="deleteRow(row); $event.stopPropagation()" matTooltip="Delete">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                        }
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns()" (click)="onClickRow(row)" class="clickable">
+                </tr>
+            </table>
+            <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+        </div>
+        @if (actions().includes('add')) {
+        <button mat-fab color="primary" [routerLink]="['__NEW__']">
+            <mat-icon>add</mat-icon>
+        </button>
+        }
+        }
+    </div>
+</div>

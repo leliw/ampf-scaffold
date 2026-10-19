@@ -1,5 +1,19 @@
-import { Routes } from '@angular/router';
+import { ResolveFn, Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
+import { MainLayout } from './core/main-layout/main-layout';
+
+
+const crudTitle: ResolveFn<string> = route => {
+    const name = route.paramMap.get('crudName') ?? 'Items';
+    const label = name
+        .replace(/[-_]/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase());
+
+    const recordId = route.paramMap.get('recordId');
+
+    if (!recordId) return label;
+    return recordId === '__NEW__' ? `New ${label}` : `Edit ${label}`;
+};
 
 export const routes: Routes = [
     { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -43,4 +57,10 @@ export const routes: Routes = [
         path: 'items/:itemId', title: "Edit item", canActivate: [authGuard], data: { roles: ['user'] },
         loadComponent: () => import('./features/items/item-edit/item-edit').then(m => m.ItemEdit)
     },
+    {
+        path: ':crudName', component: MainLayout, children: [
+            { path: '', title: crudTitle, loadComponent: () => import('./shared/dynamic-table-client-side/dynamic-table-client-side').then(m => m.DynamicTableClientSide) }
+        ]
+    },
+
 ];
