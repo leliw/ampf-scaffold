@@ -31,12 +31,14 @@ app.include_router(users.router, prefix="/api/users")
 async def ping() -> None:
     """Keep container alive."""
 
+
 @app.get("/{full_path:path}")
 async def catch_all(full_path: str):
     if not (full_path == "api" or full_path.startswith("api/")):
         return await get_static_file_response("static/browser", full_path)
     else:
         raise HTTPException(status_code=404, detail="Not found")
+
 
 @app.exception_handler(KeyNotExistsException)
 async def exception_not_found_callback(request: Request, exc: KeyNotExistsException):
