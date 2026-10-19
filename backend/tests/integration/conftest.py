@@ -5,6 +5,7 @@ from pathlib import Path
 import main
 import pytest
 from ampf.auth import DefaultUser
+from ampf.base import BaseAsyncFactory
 from ampf.testing import ApiTestClient
 from core.app_config import AppConfig
 from dependencies import lifespan
@@ -34,3 +35,6 @@ def client(config: AppConfig):
     app.router.lifespan_context = lifespan(config)
     with ApiTestClient(app) as client:
         yield client
+        # Clean up
+        factory: BaseAsyncFactory = app.state.app_state.factory
+        factory.get_sync_factory().get_collection("items").drop()

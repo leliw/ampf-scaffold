@@ -1,10 +1,9 @@
 from uuid import UUID
 
-from ampf.dependency import DependencyRegistry
 from ampf.fastapi import JsonStreamingResponse
 from dependencies import DependencyContainerDep
 from fastapi import APIRouter
-from features.items.item_model import Item, ItemCreate, ItemHeader, ItemPatch, ItemUpdate
+from features.items.item_model import Item, ItemCreate, ItemHeader, ItemUpdate
 
 router = APIRouter(tags=["Items"])
 ITEM_PATH = "/{item_id}"
@@ -15,16 +14,15 @@ async def post(dc: DependencyContainerDep, value_create: ItemCreate) -> Item:
     from features.items.item_service import ItemService
 
     service = dc.get(ItemService)
-    return await service.post(value_create)
+    return await service.create(value_create)
 
 
-@router.get("")
-async def get_all(dc: DependencyContainerDep) -> list[ItemHeader]:
+@router.get("", response_model=list[ItemHeader])
+async def get_all(dc: DependencyContainerDep):
     from features.items.item_service import ItemService
 
     service = dc.get(ItemService)
-    return JsonStreamingResponse(service.get_all())  # type: ignore
-
+    return JsonStreamingResponse(service.get_headers())
 
 @router.get(ITEM_PATH)
 async def get(dc: DependencyContainerDep, item_id: UUID) -> Item:
@@ -34,20 +32,13 @@ async def get(dc: DependencyContainerDep, item_id: UUID) -> Item:
     return await service.get(item_id)
 
 
-@router.put(ITEM_PATH)
-async def put(dc: DependencyContainerDep,  item_id: UUID, item: ItemUpdate) -> None:
-    from features.items.item_service import ItemService
-
-    service = dc.get(ItemService)
-    await service.put(item_id, item)
-
 
 @router.patch(ITEM_PATH)
-async def patch(dc: DependencyContainerDep, item_id: UUID, value_patch: ItemPatch) -> Item:
+async def patch(dc: DependencyContainerDep, item_id: UUID, value_update: ItemUpdate) -> Item:
     from features.items.item_service import ItemService
 
     service = dc.get(ItemService)
-    return await service.patch(item_id, value_patch)
+    return await service.update(item_id, value_update)
 
 
 @router.delete(ITEM_PATH)

@@ -15,18 +15,11 @@ class ItemCreate(BaseModel):
     title: str
     content: str
 
-class ItemUpdate(ItemCreate):
-    title: str
-    content: str
 
-class ItemPatch(BaseModel):
+class ItemUpdate(ItemCreate):
     title: str | None = None
     content: str | None = None
 
 
 class Item(ItemHeader):
     content: str
-
-    @classmethod
-    def create(cls, value: ItemCreate) -> "Item":
-        return cls(**value.model_dump())
