@@ -6,9 +6,9 @@ from pydantic import BaseModel, Field
 
 class ItemHeader(BaseModel):
     id: UUID = Field(default_factory=uuid4)
-    title: str
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    title: str = Field(title="Title")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC), title="Created at")
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC), title="Updated at")
 
 
 class ItemCreate(BaseModel):
