@@ -1,6 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { NavigationBar } from "../navigation-bar/navigation-bar";
-import { ConfigService } from '../config.service';
+import { Component } from '@angular/core';
+import { NavigationBar } from '../navigation-bar/navigation-bar';
 
 @Component({
     selector: 'app-home',
@@ -10,6 +9,4 @@ import { ConfigService } from '../config.service';
     templateUrl: './home.html',
     styleUrl: './home.scss',
 })
-export class Home { 
-      public configService = inject(ConfigService);
-}
+export class Home { }

@@ -1,11 +1,12 @@
 import { Component, inject, input } from '@angular/core';
-import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatIconModule } from "@angular/material/icon";
 import { MatListModule } from "@angular/material/list";
-import { RouterModule } from '@angular/router';
 import { MatMenuModule } from "@angular/material/menu";
-import { AuthService } from '../auth/auth.service';
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { RouterModule } from '@angular/router';
 import { AuthStateService } from '../auth/auth-state.service';
+import { AuthService } from '../auth/auth.service';
+import { ConfigService } from '../config.service';
 
 @Component({
     selector: 'app-navigation-bar',
@@ -20,6 +21,7 @@ import { AuthStateService } from '../auth/auth-state.service';
     styleUrl: './navigation-bar.scss',
 })
 export class NavigationBar {
+    public configService = inject(ConfigService);
     showHome = input(true);
 
     private authService = inject(AuthService);

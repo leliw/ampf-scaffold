@@ -1,5 +1,5 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpClient, httpResource, HttpResourceRef } from '@angular/common/http';
+import { inject, Injectable, Signal } from '@angular/core';
 import { Observable } from 'rxjs';
 
 export interface User {
@@ -27,7 +27,7 @@ export interface UserHeader {
 export class UserService {
     public readonly endpoint = '/api/users';
 
-    constructor(private httpClient: HttpClient) { }
+    private readonly http = inject(HttpClient);
 
     new(): User {
         return {
@@ -37,30 +37,49 @@ export class UserService {
             disabled: false,
             roles: [],
             password: '',
-        }
+        };
     }
 
-    getAll(): Observable<UserHeader[]> {
-        return this.httpClient.get<UserHeader[]>(this.endpoint);
+    getHeaders(ids?: string[]): Observable<UserHeader[]> {
+        return this.http.get<UserHeader[]>(this.endpoint, {
+            params: ids === undefined ? undefined : { ids },
+        });
+    }
+
+    getHeadersResource(ids?: Signal<string[]>): HttpResourceRef<UserHeader[]> {
+        return httpResource<UserHeader[]>(
+            () => {
+                const values = ids?.();
+
+                if (values === undefined) {
+                    return { url: this.endpoint };
+                }
+
+                return values.length === 0
+                    ? undefined
+                    : { url: this.endpoint, params: { ids: values } };
+            },
+            { defaultValue: [] },
+        );
     }
 
     create(body: User): Observable<User> {
-        return this.httpClient.post<User>(this.endpoint, body);
+        return this.http.post<User>(this.endpoint, body);
     }
 
     get(username: string): Observable<User> {
-        return this.httpClient.get<User>(`${this.endpoint}/${username}`);
+        return this.http.get<User>(`${this.endpoint}/${username}`);
     }
 
     update(username: string, body: User): Observable<User> {
-        return this.httpClient.put<User>(`${this.endpoint}/${username}`, body);
+        return this.http.put<User>(`${this.endpoint}/${username}`, body);
     }
 
     changePassword(username: string, password: string): Observable<void> {
-        return this.httpClient.patch<void>(`${this.endpoint}/${username}/change-password`, { password: password });
+        return this.http.patch<void>(`${this.endpoint}/${username}/change-password`, { password: password });
     }
 
     delete(username: string): Observable<void> {
-        return this.httpClient.delete<void>(`${this.endpoint}/${username}`);
+        return this.http.delete<void>(`${this.endpoint}/${username}`);
     }
 }

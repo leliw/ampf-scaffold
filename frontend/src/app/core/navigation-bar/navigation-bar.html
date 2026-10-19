@@ -34,3 +34,6 @@
         <span>Sign out</span>
     </button>
 </mat-menu>
+<footer class="footer-version" aria-label="Application version">
+    v{{ configService.config()?.version ?? 'unknown' }}
+</footer>

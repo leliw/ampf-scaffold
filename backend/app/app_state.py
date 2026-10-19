@@ -1,20 +1,18 @@
 import logging
-from contextlib import asynccontextmanager
 from dataclasses import dataclass
 
 from ampf.base import BaseAsyncFactory
+from ampf.fastapi import BaseAppState
 from core.app_config import AppConfig
-from fastapi import FastAPI
 from storage_def import register_collections
 
 _log = logging.getLogger(__name__)
 
 
-@dataclass
-class AppState:
+@dataclass(kw_only=True)
+class AppState(BaseAppState):
     config: AppConfig
     factory: BaseAsyncFactory
-    _initialized: bool = False
 
     @classmethod
     def create(cls, config: AppConfig) -> "AppState":
@@ -31,7 +29,7 @@ class AppState:
             from ampf.local import LocalAsyncFactory
 
             factory = LocalAsyncFactory(config.data_dir)
-            _log.info(f"Local storage: {config.data_dir}")
+            _log.info("Local storage: %s", config.data_dir)
         elif not config.production:
             from ampf.in_memory import InMemoryAsyncFactory
 
@@ -41,10 +39,3 @@ class AppState:
             raise ValueError("No factory setup!")
         register_collections(factory)
         return cls(config=config, factory=factory)
-
-    @asynccontextmanager
-    async def manage_lifecycle(self, app: FastAPI):
-        if not self._initialized:
-            self._initialized = True
-
-        yield self
