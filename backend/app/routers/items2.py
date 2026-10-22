@@ -13,6 +13,7 @@ ITEM_PATH = "/{item_id}"
 @router.get("/definition/table", response_model_exclude_none=True)
 def get_definition_table() -> TableDefinition:
     return TableDefinition(
+        title="Items2",
         actions=[],
         columns=[ColumnDefinition.from_field_info(k, m) for k, m in ItemHeader.model_fields.items()],
     )
