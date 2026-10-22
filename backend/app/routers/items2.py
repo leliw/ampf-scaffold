@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from ampf.dynamic_cruds.dynamic_table_model import ColumnDefinition, TableDefinition
+from ampf.dynamic_cruds import TableDefinition
 from ampf.fastapi import JsonStreamingResponse
 from dependencies import DependencyContainerDep
 from fastapi import APIRouter
@@ -12,11 +12,7 @@ ITEM_PATH = "/{item_id}"
 
 @router.get("/definition/table", response_model_exclude_none=True)
 def get_definition_table() -> TableDefinition:
-    return TableDefinition(
-        title="Items2",
-        actions=[],
-        columns=[ColumnDefinition.from_field_info(k, m) for k, m in ItemHeader.model_fields.items()],
-    )
+    return TableDefinition.from_pydantic_model(ItemHeader, title="Items2", actions=[])
 
 
 @router.post("")
