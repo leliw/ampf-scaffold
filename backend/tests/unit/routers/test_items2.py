@@ -1,4 +1,4 @@
-from ampf.dynamic_cruds import TableDefinition
+from ampf.dynamic_cruds import FormDefinition, TableDefinition
 from ampf.testing import ApiTestClient
 from features.items.item_model import Item, ItemCreate, ItemUpdate
 
@@ -31,11 +31,21 @@ def test_post_get_patch_delete(client: ApiTestClient):
     client.delete(f"/api/items2/{value.id}", 200)
     client.get(f"/api/items2/{value.id}", 404)
 
-def test_get_table_structure(client: ApiTestClient):
+
+def test_get_table_definition(client: ApiTestClient):
     # Given: An application
     # When: Get table definition
-    d = client.get_typed("/api/items2/definition/table", 200, TableDefinition)
+    d = client.get_typed("/api/items2/definitions/table", 200, TableDefinition)
     # Then: A definition is returned
     assert d.title == "Items2"
     assert d.actions == []
     assert len(d.columns) == 4
+
+
+def test_get_form_definition(client: ApiTestClient):
+    # Given: An application
+    # When: Get form definition
+    d = client.get_typed("/api/items2/definitions/form", 200, FormDefinition)
+    # Then: A definition is returned
+    assert d.title == "Items2"
+    assert len(d.fields) == 4
